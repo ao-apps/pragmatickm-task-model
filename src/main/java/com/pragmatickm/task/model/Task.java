@@ -110,11 +110,6 @@ public class Task extends Element {
 	}
 
 	@Override
-	public String getListItemCssClass() {
-		return "list-item-task";
-	}
-
-	@Override
 	protected String getDefaultIdPrefix() {
 		return "task";
 	}
