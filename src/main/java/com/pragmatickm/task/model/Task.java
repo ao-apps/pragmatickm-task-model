@@ -116,12 +116,7 @@ public class Task extends Element {
 
 	@Override
 	protected String getDefaultIdPrefix() {
-		return "password";
-	}
-
-	@Override
-	public String getLinkCssClass() {
-		return "taskLink";
+		return "task";
 	}
 
 	public Calendar getOn() {
