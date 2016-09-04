@@ -64,7 +64,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 		<dependency>
 			<groupId>com.semanticcms</groupId>
 			<artifactId>semanticcms-core-model</artifactId>
-			<version>1.5</version>
+			<version>1.6-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
