@@ -36,6 +36,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 	<name>PragmaticKM Task Model</name>
 	<url>https://pragmatickm.com/task/model/</url>
 	<description>Tasks nested within SemanticCMS pages and elements.</description>
+	<inceptionYear>2013</inceptionYear>
 
 	<scm>
 		<!--
