@@ -25,7 +25,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 	<parent>
 		<groupId>com.pragmatickm</groupId>
 		<artifactId>pragmatickm-task</artifactId>
-		<version>1.3</version>
+		<version>1.4-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.pragmatickm</groupId>
@@ -34,7 +34,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 	<packaging>jar</packaging>
 
 	<name>PragmaticKM Task Model</name>
-	<url>https://pragmatickm.com/docs/pragmatickm-task-model/</url>
+	<url>https://pragmatickm.com/task/model/</url>
 	<description>Tasks nested within SemanticCMS pages and elements.</description>
 
 	<scm>
@@ -64,7 +64,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 		<dependency>
 			<groupId>com.semanticcms</groupId>
 			<artifactId>semanticcms-core-model</artifactId>
-			<version>1.6</version>
+			<version>1.7-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
