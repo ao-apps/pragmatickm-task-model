@@ -55,6 +55,28 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 		</repository>
 	</repositories>
 
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<configuration>
+								<links>
+									<link>https://www.aoindustries.com/docs/aocode-public/</link>
+									<link>https://semanticcms.com/core/model/apidocs/</link>
+								</links>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.aoindustries</groupId>
