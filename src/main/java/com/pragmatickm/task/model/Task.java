@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * Task objects are short-lived, within the scope of a single request and,
@@ -425,7 +426,7 @@ public class Task extends Element {
 	 * <p>
 	 * For non-scheduled tasks (with no "on" date and no "recurring"), the status is:
 	 * <ol>
-	 *   <li>The status of the most recent log entry with a null "scheduledOn" value</li>
+	 *   <li>The status of the most recent log entry with no "scheduledOn" value</li>
 	 *   <li>"New"</li>
 	 * </ol>
 	 * </p>
@@ -626,7 +627,7 @@ public class Task extends Element {
 					TaskLog.Entry entry = entries.get(i);
 					if(entry.getStatus().isCompletedSchedule()) {
 						Calendar completedOn = entry.getOn();
-						Calendar scheduledOn = entry.getScheduledOn();
+						SortedSet<? extends Calendar> scheduledOns = entry.getScheduledOns();
 						//String checkResult = recurring.checkScheduleFrom(completedOn, "relative");
 						//if(checkResult != null) throw new TaskException(checkResult);
 						Iterator<Calendar> recurringIter = recurring.getScheduleIterator(completedOn);
@@ -635,7 +636,7 @@ public class Task extends Element {
 							recurringFrom = recurringIter.next();
 						} while(
 							recurringFrom.getTimeInMillis() <= completedOn.getTimeInMillis()
-							|| (scheduledOn != null && recurringFrom.getTimeInMillis() <= scheduledOn.getTimeInMillis())
+							|| (!scheduledOns.isEmpty() && recurringFrom.getTimeInMillis() <= scheduledOns.last().getTimeInMillis())
 						);
 						break;
 					}

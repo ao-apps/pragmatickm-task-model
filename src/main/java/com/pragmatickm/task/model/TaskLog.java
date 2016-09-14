@@ -26,6 +26,7 @@ import com.aoindustries.lang.NotImplementedException;
 import com.aoindustries.lang.NullArgumentException;
 import com.aoindustries.util.AoCollections;
 import com.aoindustries.util.CalendarUtils;
+import com.aoindustries.util.ComparatorUtils;
 import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.WrappedException;
 import com.aoindustries.util.schedule.Recurring;
@@ -36,11 +37,16 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -173,8 +179,25 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
+	private static final Comparator<Calendar> calendarInMilliOrderComparator = new Comparator<Calendar>() {
+		@Override
+		public int compare(Calendar o1, Calendar o2) {
+			long millis1 = o1.getTimeInMillis();
+			long millis2 = o2.getTimeInMillis();
+			return ComparatorUtils.compare(millis1, millis2);
+		}
+	};
+
+	private static SortedSet<UnmodifiableCalendar> makeUnmodifiable(Set<? extends Calendar> calendars) {
+		SortedSet<UnmodifiableCalendar> result = new TreeSet<UnmodifiableCalendar>(calendarInMilliOrderComparator);
+		for(Calendar cal : calendars) {
+			if(!result.add(UnmodifiableCalendar.wrap(cal))) throw new AssertionError();
+		}
+		return AoCollections.optimalUnmodifiableSortedSet(result);
+	}
+
 	public static class Entry {
-		private final UnmodifiableCalendar scheduledOn;
+		private final SortedSet<UnmodifiableCalendar> scheduledOns;
 		private final UnmodifiableCalendar on;
 		private final Status status;
 		private final List<User> unmodifiableWho;
@@ -182,14 +205,18 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		private final String comments;
 
 		public Entry(
-			Calendar scheduledOn,
+			Set<? extends Calendar> scheduledOns,
 			Calendar on,
 			Status status,
 			List<User> who,
 			Map<String,String> custom,
 			String comments
 		) {
-			this.scheduledOn = UnmodifiableCalendar.wrap(scheduledOn);
+			if(scheduledOns==null) {
+				this.scheduledOns = AoCollections.emptySortedSet();
+			} else {
+				this.scheduledOns = makeUnmodifiable(scheduledOns);
+			}
 			this.on = UnmodifiableCalendar.wrap(
 				NullArgumentException.checkNotNull(on, "on")
 			);
@@ -208,10 +235,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 
 		/**
-		 * The "on" date of the recurring schedule this entry is for.
+		 * The "on" dates of the recurring schedule this entries is for, or
+		 * empty set if not applies to any schedules.  These are ordered by
+		 * time in milliseconds ascending.
 		 */
-		public UnmodifiableCalendar getScheduledOn() {
-			return scheduledOn;
+		public SortedSet<UnmodifiableCalendar> getScheduledOns() {
+			return scheduledOns;
 		}
 
 		/**
@@ -311,7 +340,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 						) {
 							if(child instanceof Element) {
 								if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + resourceFile, 0);
-								Calendar scheduledOn = null;
+								Calendar lastScheduledOn = null;
+								Set<Calendar> scheduledOns = null;
 								Calendar on = null;
 								Status status = null;
 								List<User> who = null;
@@ -328,10 +358,20 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 										String nodeName = elem.getNodeName();
 										// Java 1.8: switch(nodeName) {
 										if(SCHEDULED_ON_NODE_NAME.equals(nodeName)) {
-											if(scheduledOn != null) {
-												throw new ParseException("Multiple " + SCHEDULED_ON_NODE_NAME + " tag in " + resourceFile, 0);
+											if(scheduledOns == null) {
+												scheduledOns = new LinkedHashSet<Calendar>();
 											}
-											scheduledOn = CalendarUtils.parseDate(content);
+											Calendar scheduledOn = CalendarUtils.parseDate(content);
+											if(lastScheduledOn != null) {
+												// Must be in order
+												if(scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
+													throw new ParseException("Out of order " + SCHEDULED_ON_NODE_NAME + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + resourceFile, 0);
+												}
+											}
+											lastScheduledOn = scheduledOn;
+											if(!scheduledOns.add(scheduledOn)) {
+												throw new ParseException("Duplicate " + SCHEDULED_ON_NODE_NAME + " value \"" + content + "\" in " + resourceFile, 0);
+											}
 										} else if(ON_NODE_NAME.equals(nodeName)) {
 											if(on != null) {
 												throw new ParseException("Multiple " + ON_NODE_NAME + " tag in " + resourceFile, 0);
@@ -367,7 +407,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 								}
 								
 								Entry newEntry = new Entry(
-									scheduledOn,
+									scheduledOns,
 									on,
 									status,
 									who,
@@ -432,10 +472,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 			if(unmodifiableEntriesByScheduledOn == null) {
 				Map<String,List<Entry>> entriesByScheduledOn = new LinkedHashMap<String,List<Entry>>();
 				for(Entry entry : allEntries) {
-					String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
-					List<Entry> entriesScheduledOn = entriesByScheduledOn.get(entryScheduledOnString);
-					if(entriesScheduledOn==null) entriesByScheduledOn.put(entryScheduledOnString, entriesScheduledOn=new ArrayList<Entry>());
-					entriesScheduledOn.add(entry);
+					for(Calendar scheduledOn : entry.getScheduledOns()) {
+						String entryScheduledOnString = CalendarUtils.formatDate(scheduledOn);
+						List<Entry> entriesScheduledOn = entriesByScheduledOn.get(entryScheduledOnString);
+						if(entriesScheduledOn==null) entriesByScheduledOn.put(entryScheduledOnString, entriesScheduledOn=new ArrayList<Entry>());
+						entriesScheduledOn.add(entry);
+					}
 				}
 				// Convert each element to unmodifiable
 				for(Map.Entry<String,List<Entry>> entry : entriesByScheduledOn.entrySet()) {
