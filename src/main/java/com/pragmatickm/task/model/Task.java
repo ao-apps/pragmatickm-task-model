@@ -283,6 +283,7 @@ public class Task extends Element {
 		}
 	}
 
+	// TODO: Concurrency: Is there a chance and benefit to handle doBefores with concurrency?
 	public List<TaskLookup> getDoBefores() {
 		if(doBefores == null) return Collections.emptyList();
 		return Collections.unmodifiableList(doBefores);
