@@ -22,6 +22,7 @@
  */
 package com.pragmatickm.task.model;
 
+import com.aoindustries.util.AoCollections;
 import com.aoindustries.util.CalendarUtils;
 import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.schedule.DayDuration;
@@ -66,48 +67,58 @@ public class Task extends Element {
 	 */
 	@Override
 	public Task freeze() throws IllegalStateException {
-		super.freeze();
-		// At least one person must be assigned the "0 days" task.
-		{
-			boolean found = false;
-			if(assignedTo == null) {
-				found = true;
-			} else {
-				for(TaskAssignment assignment : assignedTo) {
-					if(assignment.getAfter().getCount() == 0) {
-						found = true;
-						break;
+		synchronized(lock) {
+			if(assignedTo != null) assignedTo = AoCollections.optimalUnmodifiableList(assignedTo);
+			if(priorities != null) priorities = AoCollections.optimalUnmodifiableList(priorities);
+			if(doBefores != null) doBefores = AoCollections.optimalUnmodifiableList(doBefores);
+			if(customLogs != null) customLogs = AoCollections.optimalUnmodifiableSet(customLogs);
+			super.freeze();
+			// At least one person must be assigned the "0 days" task.
+			{
+				boolean found = false;
+				if(assignedTo == null) {
+					found = true;
+				} else {
+					for(TaskAssignment assignment : assignedTo) {
+						if(assignment.getAfter().getCount() == 0) {
+							found = true;
+							break;
+						}
 					}
 				}
+				if(!found) throw new IllegalStateException("At least one person must be assigned the \"0 days\" task");
 			}
-			if(!found) throw new IllegalStateException("At least one person must be assigned the \"0 days\" task");
-		}
-		// One and only one priority may have the "0 days" priority.
-		{
-			boolean found = false;
-			if(priorities == null) {
-				found = true;
-			} else {
-				for(TaskPriority priority : priorities) {
-					if(priority.getAfter().getCount() == 0) {
-						if(found) throw new IllegalStateException("Only one priority may be assigned the \"0 days\" task");
-						found = true;
+			// One and only one priority may have the "0 days" priority.
+			{
+				boolean found = false;
+				if(priorities == null) {
+					found = true;
+				} else {
+					for(TaskPriority priority : priorities) {
+						if(priority.getAfter().getCount() == 0) {
+							if(found) throw new IllegalStateException("Only one priority may be assigned the \"0 days\" task");
+							found = true;
+						}
 					}
 				}
+				if(!found) throw new IllegalStateException("At least priority must be assigned the \"0 days\" task");
 			}
-			if(!found) throw new IllegalStateException("At least priority must be assigned the \"0 days\" task");
+			return this;
 		}
-		return this;
 	}
 
 	@Override
 	public String getLabel() {
-		return label;
+		synchronized(lock) {
+			return label;
+		}
 	}
 
 	public void setLabel(String label) {
-		checkNotFrozen();
-		this.label = label==null || label.isEmpty() ? null : label;
+		synchronized(lock) {
+			checkNotFrozen();
+			this.label = label==null || label.isEmpty() ? null : label;
+		}
 	}
 
 	@Override
@@ -116,35 +127,49 @@ public class Task extends Element {
 	}
 
 	public Calendar getOn() {
-		return on;
+		synchronized(lock) {
+			return on;
+		}
 	}
 
 	public void setOn(Calendar on) {
-		checkNotFrozen();
-		this.on = on;
-		checkPriorityAndOn();
+		synchronized(lock) {
+			checkNotFrozen();
+			this.on = on;
+			checkPriorityAndOn();
+		}
 	}
 
 	public Recurring getRecurring() {
-		return recurring;
+		synchronized(lock) {
+			return recurring;
+		}
 	}
 
 	public void setRecurring(Recurring recurring) {
-		checkNotFrozen();
-		this.recurring = recurring;
+		synchronized(lock) {
+			checkNotFrozen();
+			this.recurring = recurring;
+		}
 	}
 
 	public String getRecurringDisplay() {
-		return recurring==null ? null : recurring.getRecurringDisplay();
+		synchronized(lock) {
+			return recurring==null ? null : recurring.getRecurringDisplay();
+		}
 	}
 
 	public boolean getRelative() {
-		return relative;
+		synchronized(lock) {
+			return relative;
+		}
 	}
 
 	public void setRelative(boolean relative) {
-		checkNotFrozen();
-		this.relative = relative;
+		synchronized(lock) {
+			checkNotFrozen();
+			this.relative = relative;
+		}
 	}
 
 	/**
@@ -152,8 +177,11 @@ public class Task extends Element {
 	 * if unassigned.
 	 */
 	public List<TaskAssignment> getAssignedTo() {
-		if(assignedTo == null) return Collections.singletonList(TaskAssignment.UNASSIGNED);
-		return Collections.unmodifiableList(assignedTo);
+		synchronized(lock) {
+			if(assignedTo == null) return Collections.singletonList(TaskAssignment.UNASSIGNED);
+			if(frozen) return assignedTo;
+			return AoCollections.unmodifiableCopyList(assignedTo);
+		}
 	}
 
 	/**
@@ -162,72 +190,89 @@ public class Task extends Element {
 	 * @return  The assignment or {@literal null} if not assigned to the given person.
 	 */
 	public TaskAssignment getAssignedTo(User who) {
-		if(assignedTo == null) {
-			if(who == User.Unassigned) return TaskAssignment.UNASSIGNED;
-		} else {
-			// Sequential scan to see that person not already in list.  Sequential
-			// expected to be fastest since tasks should rarely be assigned to many people
-			for(TaskAssignment assignment : assignedTo) {
-				if(assignment.getWho() == who) return assignment;
+		synchronized(lock) {
+			if(assignedTo == null) {
+				if(who == User.Unassigned) return TaskAssignment.UNASSIGNED;
+			} else {
+				// Sequential scan to see that person not already in list.  Sequential
+				// expected to be fastest since tasks should rarely be assigned to many people
+				for(TaskAssignment assignment : assignedTo) {
+					if(assignment.getWho() == who) return assignment;
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 	public void addAssignedTo(User who, DayDuration after) {
-		checkNotFrozen();
-		if(!who.isPerson()) throw new IllegalArgumentException("Not a person: " + who);
-		if(assignedTo == null) {
-			assignedTo = new ArrayList<TaskAssignment>();
-		} else {
-			if(getAssignedTo(who) != null) throw new IllegalStateException("Assigned to person twice: " + who);
+		synchronized(lock) {
+			checkNotFrozen();
+			if(!who.isPerson()) throw new IllegalArgumentException("Not a person: " + who);
+			if(assignedTo == null) {
+				assignedTo = new ArrayList<TaskAssignment>();
+			} else {
+				if(getAssignedTo(who) != null) throw new IllegalStateException("Assigned to person twice: " + who);
+			}
+			assignedTo.add(TaskAssignment.getInstance(who, after));
 		}
-		assignedTo.add(TaskAssignment.getInstance(who, after));
 	}
 
 	public String getPay() {
-		return pay;
+		synchronized(lock) {
+			return pay;
+		}
 	}
 
 	public void setPay(String pay) {
-		checkNotFrozen();
-		this.pay = pay;
+		synchronized(lock) {
+			checkNotFrozen();
+			this.pay = pay;
+		}
 	}
 
 	public String getCost() {
-		return cost;
+		synchronized(lock) {
+			return cost;
+		}
 	}
 
 	public void setCost(String cost) {
-		checkNotFrozen();
-		this.cost = cost;
+		synchronized(lock) {
+			checkNotFrozen();
+			this.cost = cost;
+		}
 	}
 
 	/**
 	 * Gets the priorities of the task.
 	 */
 	public List<TaskPriority> getPriorities() {
-		if(priorities == null) return Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
-		return Collections.unmodifiableList(priorities);
+		synchronized(lock) {
+			if(priorities == null) return Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
+			if(frozen) return priorities;
+			return AoCollections.unmodifiableCopyList(priorities);
+		}
 	}
 
 	public void addPriority(Priority priority, DayDuration after) {
-		checkNotFrozen();
-		if(priorities == null) {
-			priorities = new ArrayList<TaskPriority>();
-		} else {
-			boolean isZeroDay = after.getCount() == 0;
-			if(isZeroDay) {
-				// Must not be another zero-day priority
-				for(TaskPriority existing : priorities) {
-					if(existing.getAfter().getCount() == 0) {
-						throw new IllegalStateException("More than one zero-day priority assigned: " + existing.getPriority() + " and " + priority);
+		synchronized(lock) {
+			checkNotFrozen();
+			if(priorities == null) {
+				priorities = new ArrayList<TaskPriority>();
+			} else {
+				boolean isZeroDay = after.getCount() == 0;
+				if(isZeroDay) {
+					// Must not be another zero-day priority
+					for(TaskPriority existing : priorities) {
+						if(existing.getAfter().getCount() == 0) {
+							throw new IllegalStateException("More than one zero-day priority assigned: " + existing.getPriority() + " and " + priority);
+						}
 					}
 				}
 			}
+			priorities.add(TaskPriority.getInstance(priority, after));
+			checkPriorityAndOn();
 		}
-		priorities.add(TaskPriority.getInstance(priority, after));
-		checkPriorityAndOn();
 	}
 
 	/**
@@ -237,23 +282,25 @@ public class Task extends Element {
 	 * @param  now   the current system timestamp
 	 */
 	public Priority getPriority(Calendar from, long now) {
-		long mostFutureMatch = Long.MIN_VALUE;
-		Priority mostFuturePriority = null;
-		for(TaskPriority taskPriority : getPriorities()) {
-			// priority "after"
-			Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(from);
-			taskPriority.getAfter().offset(effectiveDate);
-			long effectiveTime = effectiveDate.getTimeInMillis();
-			if(now >= effectiveTime && effectiveTime > mostFutureMatch) {
-				mostFutureMatch = effectiveTime;
-				mostFuturePriority = taskPriority.getPriority();
+		synchronized(lock) {
+			long mostFutureMatch = Long.MIN_VALUE;
+			Priority mostFuturePriority = null;
+			for(TaskPriority taskPriority : getPriorities()) {
+				// priority "after"
+				Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(from);
+				taskPriority.getAfter().offset(effectiveDate);
+				long effectiveTime = effectiveDate.getTimeInMillis();
+				if(now >= effectiveTime && effectiveTime > mostFutureMatch) {
+					mostFutureMatch = effectiveTime;
+					mostFuturePriority = taskPriority.getPriority();
+				}
 			}
-		}
-		if(mostFuturePriority != null) {
-			return mostFuturePriority;
-		} else {
-			// No matches
-			return getZeroDayPriority();
+			if(mostFuturePriority != null) {
+				return mostFuturePriority;
+			} else {
+				// No matches
+				return getZeroDayPriority();
+			}
 		}
 	}
 
@@ -261,8 +308,10 @@ public class Task extends Element {
 	 * Gets the priority that will be used on the zero day.
 	 */
 	public Priority getZeroDayPriority() {
-		for(TaskPriority taskPriority : getPriorities()) {
-			if(taskPriority.getAfter().getCount() == 0) return taskPriority.getPriority();
+		synchronized(lock) {
+			for(TaskPriority taskPriority : getPriorities()) {
+				if(taskPriority.getAfter().getCount() == 0) return taskPriority.getPriority();
+			}
 		}
 		throw new AssertionError("There should always be one, and only one, zero-day TaskPriority");
 	}
@@ -271,6 +320,7 @@ public class Task extends Element {
 	 * Check the consistency between future status and not scheduled.
 	 */
 	private void checkPriorityAndOn() throws IllegalArgumentException {
+		assert Thread.holdsLock(lock);
 		boolean hasFuture = false;
 		for(TaskPriority taskPriority : getPriorities()) {
 			if(taskPriority.getPriority() == Priority.FUTURE) {
@@ -285,42 +335,58 @@ public class Task extends Element {
 
 	// TODO: Concurrency: Is there a chance and benefit to handle doBefores with concurrency?
 	public List<TaskLookup> getDoBefores() {
-		if(doBefores == null) return Collections.emptyList();
-		return Collections.unmodifiableList(doBefores);
+		synchronized(lock) {
+			if(doBefores == null) return Collections.emptyList();
+			if(frozen) return doBefores;
+			return AoCollections.unmodifiableCopyList(doBefores);
+		}
 	}
 
 	public void addDoBefore(TaskLookup task) {
-		checkNotFrozen();
-		if(doBefores == null) doBefores = new ArrayList<TaskLookup>();
-		doBefores.add(task);
-		// TODO: Both directions for page links?
-		addPageLink(task.getPageRef());
+		synchronized(lock) {
+			checkNotFrozen();
+			if(doBefores == null) doBefores = new ArrayList<TaskLookup>();
+			doBefores.add(task);
+			// TODO: Both directions for page links?
+			addPageLink(task.getPageRef());
+		}
 	}
 
 	public Set<String> getCustomLogs() {
-		if(customLogs==null) return Collections.emptySet();
-		return Collections.unmodifiableSet(customLogs);
+		synchronized(lock) {
+			if(customLogs==null) return Collections.emptySet();
+			if(frozen) return customLogs;
+			return AoCollections.unmodifiableCopySet(customLogs);
+		}
 	}
 
 	public void addCustomLog(String name) {
-		checkNotFrozen();
-		if(name==null || name.isEmpty()) throw new IllegalArgumentException("Empty name");
-		if(customLogs==null) customLogs = new LinkedHashSet<String>();
-		if(!customLogs.add(name)) throw new IllegalStateException("Custom log added twice: " + name);
+		synchronized(lock) {
+			checkNotFrozen();
+			if(name==null || name.isEmpty()) throw new IllegalArgumentException("Empty name");
+			if(customLogs==null) customLogs = new LinkedHashSet<String>();
+			if(!customLogs.add(name)) throw new IllegalStateException("Custom log added twice: " + name);
+		}
 	}
 
 	public PageRef getXmlFile() {
-		return xmlFile;
+		synchronized(lock) {
+			return xmlFile;
+		}
 	}
 
 	public void setXmlFile(PageRef xmlFile) {
-		checkNotFrozen();
-		this.xmlFile = xmlFile;
+		synchronized(lock) {
+			checkNotFrozen();
+			this.xmlFile = xmlFile;
+		}
 	}
 
 	public TaskLog getTaskLog() {
-		if(xmlFile==null) throw new IllegalStateException("xmlFile not set");
-		return TaskLog.getTaskLog(xmlFile);
+		synchronized(lock) {
+			if(xmlFile==null) throw new IllegalStateException("xmlFile not set");
+			return TaskLog.getTaskLog(xmlFile);
+		}
 	}
 
 	public static class StatusResult {
@@ -452,6 +518,14 @@ public class Task extends Element {
 	 * </p>
 	 */
 	public StatusResult getStatus() throws TaskException, IOException {
+		Calendar on;
+		Recurring recurring;
+		boolean relative;
+		synchronized(lock) {
+			on = this.on;
+			recurring = this.recurring;
+			relative = this.relative;
+		}
 		// Check if all dependencies are completed
 		boolean allDoBeforesCompleted = true;
 		for(TaskLookup doBeforeLookup : getDoBefores()) {
