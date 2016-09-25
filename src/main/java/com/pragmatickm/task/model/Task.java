@@ -22,8 +22,10 @@
  */
 package com.pragmatickm.task.model;
 
+import com.aoindustries.lang.NullArgumentException;
 import com.aoindustries.util.AoCollections;
 import com.aoindustries.util.CalendarUtils;
+import static com.aoindustries.util.StringUtility.nullIfEmpty;
 import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.schedule.DayDuration;
 import com.aoindustries.util.schedule.Recurring;
@@ -117,7 +119,7 @@ public class Task extends Element {
 	public void setLabel(String label) {
 		synchronized(lock) {
 			checkNotFrozen();
-			this.label = label==null || label.isEmpty() ? null : label;
+			this.label = nullIfEmpty(label);
 		}
 	}
 
@@ -226,7 +228,7 @@ public class Task extends Element {
 	public void setPay(String pay) {
 		synchronized(lock) {
 			checkNotFrozen();
-			this.pay = pay;
+			this.pay = nullIfEmpty(pay);
 		}
 	}
 
@@ -239,7 +241,7 @@ public class Task extends Element {
 	public void setCost(String cost) {
 		synchronized(lock) {
 			checkNotFrozen();
-			this.cost = cost;
+			this.cost = nullIfEmpty(cost);
 		}
 	}
 
@@ -361,9 +363,10 @@ public class Task extends Element {
 	}
 
 	public void addCustomLog(String name) {
+		name = nullIfEmpty(name);
+		NullArgumentException.checkNotNull(name, "name");
 		synchronized(lock) {
 			checkNotFrozen();
-			if(name==null || name.isEmpty()) throw new IllegalArgumentException("Empty name");
 			if(customLogs==null) customLogs = new LinkedHashSet<String>();
 			if(!customLogs.add(name)) throw new IllegalStateException("Custom log added twice: " + name);
 		}
