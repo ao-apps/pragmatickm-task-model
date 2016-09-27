@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -459,6 +460,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
+	private static final Collection<UnmodifiableCalendar> COLLECTION_WITH_ONE_NULL = Collections.singletonList(null);
+
 	/**
 	 * Gets a snapshot of the entries grouped by "scheduledOn" value.
 	 * Has a <code>null</code> key for any entries without a "scheduledOn" date.
@@ -473,10 +476,16 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 			if(unmodifiableEntriesByScheduledOn == null) {
 				Map<String,List<Entry>> entriesByScheduledOn = new LinkedHashMap<String,List<Entry>>();
 				for(Entry entry : allEntries) {
-					for(Calendar scheduledOn : entry.getScheduledOns()) {
+					Collection<UnmodifiableCalendar> scheduledOns = entry.getScheduledOns();
+					// Must always handle the "null" key for when there are not scheduled ons
+					if(scheduledOns.isEmpty()) scheduledOns = COLLECTION_WITH_ONE_NULL;
+					for(Calendar scheduledOn : scheduledOns) {
 						String entryScheduledOnString = CalendarUtils.formatDate(scheduledOn);
 						List<Entry> entriesScheduledOn = entriesByScheduledOn.get(entryScheduledOnString);
-						if(entriesScheduledOn==null) entriesByScheduledOn.put(entryScheduledOnString, entriesScheduledOn=new ArrayList<Entry>());
+						if(entriesScheduledOn == null) {
+							entriesScheduledOn = new ArrayList<Entry>();
+							entriesByScheduledOn.put(entryScheduledOnString, entriesScheduledOn);
+						}
 						entriesScheduledOn.add(entry);
 					}
 				}
