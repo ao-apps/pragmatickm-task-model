@@ -284,7 +284,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	}
 
 	private final PageRef xmlFile;
-	private final Object entriesLock = new Object();
+	private static class EntriesLock {}
+	private final EntriesLock entriesLock = new EntriesLock();
 	private long entriesLastModified;
 	private List<Entry> unmodifiableEntries;
 	private Map<String,List<Entry>> unmodifiableEntriesByScheduledOn;
