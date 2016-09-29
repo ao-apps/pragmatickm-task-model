@@ -33,6 +33,7 @@ public enum Priority {
 	CRITICAL("Critical", "task_priority_critical");
 
 	public static final Priority DEFAULT_PRIORITY = MEDIUM;
+	public static final Priority MAX_PRIORITY = CRITICAL;
 
 	private final String display;
 	private final String cssClass;
