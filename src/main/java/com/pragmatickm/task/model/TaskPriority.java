@@ -23,6 +23,8 @@
 package com.pragmatickm.task.model;
 
 import com.aoindustries.util.schedule.DayDuration;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Tasks may be assigned multiple priorities.  One of them
@@ -35,6 +37,11 @@ public class TaskPriority {
 	 * Some commonly used constant assignments.
 	 */
 	public static final TaskPriority DEFAULT_TASK_PRIORITY = new TaskPriority(Priority.DEFAULT_PRIORITY, DayDuration.ZERO_DAYS);
+
+	/**
+	 * An unmodifiable list with the default task priority.
+	 */
+	public static final List<TaskPriority> DEFAULT_TASK_PRIORITY_LIST = Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
 
 	public static TaskPriority getInstance(Priority priority, DayDuration after) {
 		// Shortcuts for constants

@@ -232,7 +232,7 @@ public class Task extends Element {
 	 */
 	public List<TaskPriority> getPriorities() {
 		synchronized(lock) {
-			if(priorities == null) return Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
+			if(priorities == null) return TaskPriority.DEFAULT_TASK_PRIORITY_LIST;
 			if(frozen) return priorities;
 			return AoCollections.unmodifiableCopyList(priorities);
 		}
@@ -245,7 +245,7 @@ public class Task extends Element {
 	 */
 	private List<TaskPriority> fastGetPriorities() {
 		assert Thread.holdsLock(lock);
-		if(priorities == null) return Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
+		if(priorities == null) return TaskPriority.DEFAULT_TASK_PRIORITY_LIST;
 		return priorities;
 	}
 
