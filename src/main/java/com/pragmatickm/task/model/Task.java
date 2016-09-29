@@ -488,6 +488,8 @@ public class Task extends Element {
 		}
 	}
 
+	private volatile StatusResult statusResultCache;
+
 	/**
 	 * <p>
 	 * Gets a human-readable description of the task status as well as an associated class.
@@ -521,6 +523,15 @@ public class Task extends Element {
 	 * </p>
 	 */
 	public StatusResult getStatus() throws TaskException, IOException {
+		StatusResult sr = statusResultCache;
+		if(sr == null) {
+			sr = doGetStatus();
+			statusResultCache = sr;
+		}
+		return sr;
+	}
+
+	private StatusResult doGetStatus() throws TaskException, IOException {
 		Calendar on;
 		Recurring recurring;
 		boolean relative;
