@@ -318,6 +318,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	public List<Entry> getEntries() throws IOException {
 		try {
 			final File resourceFile = xmlFile.getResourceFile(true, false);
+			// TODO: avoid locking and also only check every second (or so) for background changes?
 			synchronized(entriesLock) {
 				long fileLastModified = resourceFile.lastModified();
 				if(
@@ -571,11 +572,10 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		firstIncompleteRecurring = null;
 		firstIncompleteResult = null;
 		// Update last modified time for cache
-		File resourceFile = xmlFile.getResourceFile(
+		entriesLastModified = xmlFile.getResourceFile(
 			true,
 			true // Note: File must always exist after it was written
-		); 
-		entriesLastModified = resourceFile.lastModified();
+		).lastModified();
 	}
 
 	/**
