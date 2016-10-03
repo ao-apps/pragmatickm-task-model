@@ -83,9 +83,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		PROGRESS(
 			"Progress",
 			"Progress waiting for \"Do Before\"",
-			false,
-			Task.StatusResult.StatusCssClass.task_status_progress,
-			Task.StatusResult.StatusCssClass.task_status_progress_waiting_do_after
+			false
 		),
 		/**
 		 * The task has been completed.
@@ -93,9 +91,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		COMPLETED(
 			"Completed",
 			"Completed", // after \"Do Before\"",
-			true,
-			Task.StatusResult.StatusCssClass.task_status_completed,
-			Task.StatusResult.StatusCssClass.task_status_completed
+			true
 		),
 		/**
 		 * The task has been completed.
@@ -103,9 +99,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		NOTHING_TO_DO(
 			"Nothing To Do",
 			"Nothing To Do after \"Do Before\"",
-			true,
-			Task.StatusResult.StatusCssClass.task_status_completed,
-			Task.StatusResult.StatusCssClass.task_status_completed
+			true
 		),
 		/**
 		 * The task was missed and will not be done.
@@ -113,9 +107,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		MISSED(
 			"Missed",
 			"Missed after \"Do Before\"",
-			true,
-			Task.StatusResult.StatusCssClass.task_status_missed,
-			Task.StatusResult.StatusCssClass.task_status_missed
+			true
 		);
 
 		public static Status getStatusByLabel(String label) {
@@ -130,21 +122,15 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		private final String label;
 		private final String labelDoBefore;
 		private final boolean completedSchedule;
-		private final Task.StatusResult.StatusCssClass statusClass;
-		private final Task.StatusResult.StatusCssClass statusDoBeforeClass;
 		
 		private Status(
 			String label,
 			String labelDoBefore,
-			boolean completedSchedule,
-			Task.StatusResult.StatusCssClass statusClass,
-			Task.StatusResult.StatusCssClass statusDoBeforeClass
+			boolean completedSchedule
 		) {
 			this.label = label;
 			this.labelDoBefore = labelDoBefore;
 			this.completedSchedule = completedSchedule;
-			this.statusClass = statusClass;
-			this.statusDoBeforeClass = statusDoBeforeClass;
 		}
 
 		@Override
@@ -162,14 +148,6 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 
 		public boolean isCompletedSchedule() {
 			return completedSchedule;
-		}
-
-		public Task.StatusResult.StatusCssClass getStatusCssClass() {
-			return statusClass;
-		}
-		
-		public Task.StatusResult.StatusCssClass getStatusDoBeforeCssClass() {
-			return statusDoBeforeClass;
 		}
 
 		/**
