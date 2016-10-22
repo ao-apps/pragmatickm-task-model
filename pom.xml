@@ -25,7 +25,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 	<parent>
 		<groupId>com.pragmatickm</groupId>
 		<artifactId>pragmatickm-task</artifactId>
-		<version>1.4.1</version>
+		<version>1.4.2-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.pragmatickm</groupId>
@@ -44,7 +44,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 		-->
 		<developerConnection>scm:git:ssh://private.cvs.aoindustries.com/var/git/pragmatickm-task-model</developerConnection>
 		<!--
-		<url>http://github.com/aoindustries/pragmatickm-task-model</url>
+		<url>https://github.com/aoindustries/pragmatickm-task-model</url>
 		-->
 		<tag>HEAD</tag>
 	</scm>
@@ -121,12 +121,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 		<dependency>
 			<groupId>com.aoindustries</groupId>
 			<artifactId>aocode-public</artifactId>
-			<version>1.8.2</version>
+			<version>1.8.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.semanticcms</groupId>
 			<artifactId>semanticcms-core-model</artifactId>
-			<version>1.8.0</version>
+			<version>1.8.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
