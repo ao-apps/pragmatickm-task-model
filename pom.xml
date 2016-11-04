@@ -78,7 +78,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<configuration>
 								<links>
-									<link>https://www.aoindustries.com/aocode-public/apidocs/</link>
+									<link>https://aoindustries.com/aocode-public/apidocs/</link>
 									<link>https://semanticcms.com/core/model/apidocs/</link>
 								</links>
 							</configuration>
