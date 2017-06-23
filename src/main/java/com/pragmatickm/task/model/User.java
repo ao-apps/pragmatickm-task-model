@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -31,7 +31,8 @@ public enum User {
 	Dennis(true),
 	Kaori(true),
 	Seth(true),
-	Tabatha(true);
+	Tabatha(true),
+	Tyler(true);
 
 	private final boolean isPerson;
 	
