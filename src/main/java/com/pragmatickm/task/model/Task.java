@@ -38,10 +38,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Task objects are short-lived, within the scope of a single request and,
- * consequently, a single thread.  They do not need to be thread safe.
- */
 public class Task extends Element {
 
 	private volatile String label;
