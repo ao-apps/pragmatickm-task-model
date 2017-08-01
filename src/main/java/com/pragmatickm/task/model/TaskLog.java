@@ -295,6 +295,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 */
 	public List<Entry> getEntries() throws IOException {
 		try {
+			// TODO: Get from repository
+			// TODO: Support URL fallback
 			final File resourceFile = xmlFile.getResourceFile(true, false);
 			// TODO: avoid locking and also only check every second (or so) for background changes?
 			synchronized(entriesLock) {
