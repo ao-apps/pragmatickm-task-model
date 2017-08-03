@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -30,9 +30,9 @@ import com.aoindustries.util.ComparatorUtils;
 import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.WrappedException;
 import com.aoindustries.util.schedule.Recurring;
-import com.semanticcms.core.model.PageRef;
-import java.io.File;
+import com.semanticcms.core.model.Resource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -247,12 +247,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
-	private static final Map<PageRef,TaskLog> taskLogCache = new HashMap<PageRef,TaskLog>();
+	private static final Map<Resource,TaskLog> taskLogCache = new HashMap<Resource,TaskLog>();
 
 	/**
 	 * To avoid repetitive parsing, only one TaskLog is created for each unique PageRef.
 	 */
-	public static TaskLog getTaskLog(PageRef xmlFile) {
+	public static TaskLog getTaskLog(Resource xmlFile) {
 		synchronized(taskLogCache) {
 			TaskLog taskLog = taskLogCache.get(xmlFile);
 			if(taskLog == null) {
@@ -262,7 +262,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
-	private final PageRef xmlFile;
+	private final Resource xmlFile;
 	private static class EntriesLock {}
 	private final EntriesLock entriesLock = new EntriesLock();
 	private long entriesLastModified;
@@ -273,11 +273,11 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	private Recurring firstIncompleteRecurring;
 	private UnmodifiableCalendar firstIncompleteResult;
 
-	private TaskLog(PageRef xmlFile) {
+	private TaskLog(Resource xmlFile) {
 		this.xmlFile = xmlFile;
 	}
 
-	public PageRef getXmlFile() {
+	public Resource getXmlFile() {
 		return xmlFile;
 	}
 
@@ -295,12 +295,11 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 */
 	public List<Entry> getEntries() throws IOException {
 		try {
-			// TODO: Get from repository
-			// TODO: Support URL fallback
-			final File resourceFile = xmlFile.getResourceFile(true, false);
 			// TODO: avoid locking and also only check every second (or so) for background changes?
 			synchronized(entriesLock) {
-				long fileLastModified = resourceFile.lastModified();
+				long fileLastModified = xmlFile.getLastModified();
+				// TODO: Handle unknown last modified of 0 similar to how properties are time-cached
+				//       These two different things might share some code.
 				if(
 					// First access
 					unmodifiableEntries==null
@@ -309,20 +308,28 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 				) {
 					List<Entry> newEntries = new ArrayList<Entry>();
 					Entry lastEntry = null;
-					if(resourceFile.exists()) {
+					if(xmlFile.exists()) {
 						DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-						Document document = builder.parse(resourceFile);
+						Document document;
+						{
+							InputStream in = xmlFile.getInputStream();
+							try {
+								document = builder.parse(in);
+							} finally {
+								in.close();
+							}
+						}
 						// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 						Element root = document.getDocumentElement();
 						root.normalize();
-						if(!ROOT_NODE_NAME.equals(root.getNodeName())) throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + resourceFile, 0);
+						if(!ROOT_NODE_NAME.equals(root.getNodeName())) throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + xmlFile, 0);
 						for(
 							Node child = root.getFirstChild();
 							child != null;
 							child = child.getNextSibling()
 						) {
 							if(child instanceof Element) {
-								if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + resourceFile, 0);
+								if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + xmlFile, 0);
 								Calendar lastScheduledOn = null;
 								Set<Calendar> scheduledOns = null;
 								Calendar on = null;
@@ -348,21 +355,21 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 											if(lastScheduledOn != null) {
 												// Must be in order
 												if(scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
-													throw new ParseException("Out of order " + SCHEDULED_ON_NODE_NAME + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + resourceFile, 0);
+													throw new ParseException("Out of order " + SCHEDULED_ON_NODE_NAME + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + xmlFile, 0);
 												}
 											}
 											lastScheduledOn = scheduledOn;
 											if(!scheduledOns.add(scheduledOn)) {
-												throw new ParseException("Duplicate " + SCHEDULED_ON_NODE_NAME + " value \"" + content + "\" in " + resourceFile, 0);
+												throw new ParseException("Duplicate " + SCHEDULED_ON_NODE_NAME + " value \"" + content + "\" in " + xmlFile, 0);
 											}
 										} else if(ON_NODE_NAME.equals(nodeName)) {
 											if(on != null) {
-												throw new ParseException("Multiple " + ON_NODE_NAME + " tag in " + resourceFile, 0);
+												throw new ParseException("Multiple " + ON_NODE_NAME + " tag in " + xmlFile, 0);
 											}
 											on = CalendarUtils.parseDate(content);
 										} else if(STATUS_NODE_NAME.equals(nodeName)) {
 											if(status != null) {
-												throw new ParseException("Multiple " + STATUS_NODE_NAME + " tag in " + resourceFile, 0);
+												throw new ParseException("Multiple " + STATUS_NODE_NAME + " tag in " + xmlFile, 0);
 											}
 											status = Status.getStatusByLabel(content);
 										} else if(WHO_NODE_NAME.equals(nodeName)) {
@@ -371,20 +378,20 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 										} else if(CUSTOM_NODE_NAME.equals(nodeName)) {
 											if(custom==null) custom = new LinkedHashMap<String,String>();
 											if(!elem.hasAttribute(CUSTOM_NAME_ATTRIBUTE_NAME)) {
-												throw new ParseException(CUSTOM_NAME_ATTRIBUTE_NAME + " attribute missing from " + CUSTOM_NODE_NAME + " tag in " + resourceFile, 0);
+												throw new ParseException(CUSTOM_NAME_ATTRIBUTE_NAME + " attribute missing from " + CUSTOM_NODE_NAME + " tag in " + xmlFile, 0);
 											}
 											String name = elem.getAttribute(CUSTOM_NAME_ATTRIBUTE_NAME);
 											if(custom.containsKey(name)) {
-												throw new ParseException("Duplicate " + CUSTOM_NAME_ATTRIBUTE_NAME + " attribute in " + CUSTOM_NODE_NAME + " tag in " + resourceFile + ": " + name, 0);
+												throw new ParseException("Duplicate " + CUSTOM_NAME_ATTRIBUTE_NAME + " attribute in " + CUSTOM_NODE_NAME + " tag in " + xmlFile + ": " + name, 0);
 											}
 											custom.put(name, content);
 										} else if(COMMENTS_NODE_NAME.equals(nodeName)) {
 											if(comments != null) {
-												throw new ParseException("Multiple " + COMMENTS_NODE_NAME + " tag in " + resourceFile, 0);
+												throw new ParseException("Multiple " + COMMENTS_NODE_NAME + " tag in " + xmlFile, 0);
 											}
 											comments = content;
 										} else {
-											throw new ParseException("Unexpected child element \"" + nodeName + "\" in " + resourceFile, 0);
+											throw new ParseException("Unexpected child element \"" + nodeName + "\" in " + xmlFile, 0);
 										}
 									}
 								}
@@ -399,7 +406,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 								);
 								// The entries must be in order by "on" value
 								if(lastEntry!=null && newEntry.on.before(lastEntry.on)) {
-									throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on) + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + resourceFile, 0);
+									throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on) + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + xmlFile, 0);
 								}
 								lastEntry = newEntry;
 								newEntries.add(newEntry);
@@ -552,10 +559,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		firstIncompleteRecurring = null;
 		firstIncompleteResult = null;
 		// Update last modified time for cache
-		entriesLastModified = xmlFile.getResourceFile(
-			true,
-			true // Note: File must always exist after it was written
-		).lastModified();
+		entriesLastModified = xmlFile.getLastModified(); // Note: File must always exist after it was written
 	}
 
 	/**

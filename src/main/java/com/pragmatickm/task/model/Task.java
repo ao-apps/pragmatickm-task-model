@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -30,7 +30,9 @@ import com.aoindustries.util.schedule.DayDuration;
 import com.aoindustries.util.schedule.Recurring;
 import com.semanticcms.core.model.Element;
 import com.semanticcms.core.model.ElementRef;
-import com.semanticcms.core.model.PageRef;
+import com.semanticcms.core.model.ResourceRef;
+import com.semanticcms.core.model.ResourceStore;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -39,6 +41,8 @@ import java.util.List;
 import java.util.Set;
 
 public class Task extends Element {
+
+	private final ResourceStore resourceStore;
 
 	private volatile String label;
 	private volatile UnmodifiableCalendar on;
@@ -55,7 +59,11 @@ public class Task extends Element {
 		// indicate which status where task log entry must have a value
 	}*/
 	private Set<String> customLogs;
-	private volatile PageRef xmlFile;
+	private volatile ResourceRef xmlFile;
+
+	public Task(ResourceStore resourceStore) {
+		this.resourceStore = resourceStore;
+	}
 
 	/**
 	 * @throws IllegalStateException if the task has been setup in an inconsistent state
@@ -358,18 +366,18 @@ public class Task extends Element {
 		}
 	}
 
-	public PageRef getXmlFile() {
+	public ResourceRef getXmlFile() {
 		return xmlFile;
 	}
 
-	public void setXmlFile(PageRef xmlFile) {
+	public void setXmlFile(ResourceRef xmlFile) {
 		checkNotFrozen();
 		this.xmlFile = xmlFile;
 	}
 
-	public TaskLog getTaskLog() {
-		PageRef xf = xmlFile;
+	public TaskLog getTaskLog() throws IOException {
+		ResourceRef xf = xmlFile;
 		if(xf==null) throw new IllegalStateException("xmlFile not set");
-		return TaskLog.getTaskLog(xf);
+		return TaskLog.getTaskLog(resourceStore.getResource(xf));
 	}
 }
