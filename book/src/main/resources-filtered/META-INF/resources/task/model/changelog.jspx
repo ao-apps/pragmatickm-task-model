@@ -37,7 +37,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2017-07-25T17:39:09-0500"
-		dateModified="2017-07-26T23:48:44-0500"
+		dateModified="2017-08-03T11:35:29-0500"
 	>
 		<!-- The current snapshot, unreleased version -->
 		<c:set var="version" value="@{com.pragmatickm:pragmatickm-task-model:pom.version}" />
@@ -52,7 +52,11 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 				groupId="@{documented.groupId}"
 				artifactId="@{documented.artifactId}"
 				scmUrl="@{documented.scm.url}"
-			/>
+			>
+				<ul>
+					<li>Added <ao:a href="https://semanticcms.com/core/model/">SemanticCMS Core Model</ao:a> resource support.</li>
+				</ul>
+			</changelog:release>
 		</c:if>
 
 		<changelog:release
