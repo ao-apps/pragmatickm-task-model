@@ -31,6 +31,9 @@ import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.WrappedException;
 import com.aoindustries.util.schedule.Recurring;
 import com.semanticcms.core.model.Resource;
+import com.semanticcms.core.model.ResourceConnection;
+import com.semanticcms.core.model.ResourceRef;
+import com.semanticcms.core.model.ResourceStore;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -247,16 +250,16 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
-	private static final Map<Resource,TaskLog> taskLogCache = new HashMap<Resource,TaskLog>();
+	private static final Map<ResourceRef,TaskLog> taskLogCache = new HashMap<ResourceRef,TaskLog>();
 
 	/**
-	 * To avoid repetitive parsing, only one TaskLog is created for each unique PageRef.
+	 * To avoid repetitive parsing, only one {@link TaskLog} is created for each unique {@link ResourceRef}.
 	 */
-	public static TaskLog getTaskLog(Resource xmlFile) {
+	public static TaskLog getTaskLog(ResourceStore resourceStore, ResourceRef xmlFile) {
 		synchronized(taskLogCache) {
 			TaskLog taskLog = taskLogCache.get(xmlFile);
 			if(taskLog == null) {
-				taskLogCache.put(xmlFile, taskLog = new TaskLog(xmlFile));
+				taskLogCache.put(xmlFile, taskLog = new TaskLog(resourceStore.getResource(xmlFile.getPath())));
 			}
 			return taskLog;
 		}
@@ -297,133 +300,139 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		try {
 			// TODO: avoid locking and also only check every second (or so) for background changes?
 			synchronized(entriesLock) {
-				long fileLastModified = xmlFile.getLastModified();
-				// TODO: Handle unknown last modified of 0 similar to how properties are time-cached
-				//       These two different things might share some code.
-				if(
-					// First access
-					unmodifiableEntries==null
-					// File updated externally
-					|| entriesLastModified != fileLastModified
-				) {
-					List<Entry> newEntries = new ArrayList<Entry>();
-					Entry lastEntry = null;
-					if(xmlFile.exists()) {
-						DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-						Document document;
-						{
-							InputStream in = xmlFile.getInputStream();
-							try {
-								document = builder.parse(in);
-							} finally {
-								in.close();
+				ResourceConnection conn = xmlFile.open();
+				try {
+					boolean exists = conn.exists();
+					long fileLastModified = exists ? conn.getLastModified() : 0;
+					// TODO: Handle unknown last modified of 0 similar to how properties are time-cached
+					//       These two different things might share some code.
+					if(
+						// First access
+						unmodifiableEntries==null
+						// File updated externally
+						|| entriesLastModified != fileLastModified
+					) {
+						List<Entry> newEntries = new ArrayList<Entry>();
+						Entry lastEntry = null;
+						if(exists) {
+							DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
+							Document document;
+							{
+								InputStream in = conn.getInputStream();
+								try {
+									document = builder.parse(in);
+								} finally {
+									in.close();
+								}
 							}
-						}
-						// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-						Element root = document.getDocumentElement();
-						root.normalize();
-						if(!ROOT_NODE_NAME.equals(root.getNodeName())) throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + xmlFile, 0);
-						for(
-							Node child = root.getFirstChild();
-							child != null;
-							child = child.getNextSibling()
-						) {
-							if(child instanceof Element) {
-								if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + xmlFile, 0);
-								Calendar lastScheduledOn = null;
-								Set<Calendar> scheduledOns = null;
-								Calendar on = null;
-								Status status = null;
-								List<User> who = null;
-								Map<String,String> custom = null;
-								String comments = null;
-								for(
-									Node grandChild = child.getFirstChild();
-									grandChild != null;
-									grandChild = grandChild.getNextSibling()
-								) {
-									if(grandChild instanceof Element) {
-										Element elem = (Element)grandChild;
-										String content = elem.getTextContent();
-										String nodeName = elem.getNodeName();
-										// Java 1.8: switch(nodeName) {
-										if(SCHEDULED_ON_NODE_NAME.equals(nodeName)) {
-											if(scheduledOns == null) {
-												scheduledOns = new LinkedHashSet<Calendar>();
-											}
-											Calendar scheduledOn = CalendarUtils.parseDate(content);
-											if(lastScheduledOn != null) {
-												// Must be in order
-												if(scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
-													throw new ParseException("Out of order " + SCHEDULED_ON_NODE_NAME + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + xmlFile, 0);
+							// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+							Element root = document.getDocumentElement();
+							root.normalize();
+							if(!ROOT_NODE_NAME.equals(root.getNodeName())) throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + xmlFile, 0);
+							for(
+								Node child = root.getFirstChild();
+								child != null;
+								child = child.getNextSibling()
+							) {
+								if(child instanceof Element) {
+									if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + xmlFile, 0);
+									Calendar lastScheduledOn = null;
+									Set<Calendar> scheduledOns = null;
+									Calendar on = null;
+									Status status = null;
+									List<User> who = null;
+									Map<String,String> custom = null;
+									String comments = null;
+									for(
+										Node grandChild = child.getFirstChild();
+										grandChild != null;
+										grandChild = grandChild.getNextSibling()
+									) {
+										if(grandChild instanceof Element) {
+											Element elem = (Element)grandChild;
+											String content = elem.getTextContent();
+											String nodeName = elem.getNodeName();
+											// Java 1.8: switch(nodeName) {
+											if(SCHEDULED_ON_NODE_NAME.equals(nodeName)) {
+												if(scheduledOns == null) {
+													scheduledOns = new LinkedHashSet<Calendar>();
 												}
+												Calendar scheduledOn = CalendarUtils.parseDate(content);
+												if(lastScheduledOn != null) {
+													// Must be in order
+													if(scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
+														throw new ParseException("Out of order " + SCHEDULED_ON_NODE_NAME + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + xmlFile, 0);
+													}
+												}
+												lastScheduledOn = scheduledOn;
+												if(!scheduledOns.add(scheduledOn)) {
+													throw new ParseException("Duplicate " + SCHEDULED_ON_NODE_NAME + " value \"" + content + "\" in " + xmlFile, 0);
+												}
+											} else if(ON_NODE_NAME.equals(nodeName)) {
+												if(on != null) {
+													throw new ParseException("Multiple " + ON_NODE_NAME + " tag in " + xmlFile, 0);
+												}
+												on = CalendarUtils.parseDate(content);
+											} else if(STATUS_NODE_NAME.equals(nodeName)) {
+												if(status != null) {
+													throw new ParseException("Multiple " + STATUS_NODE_NAME + " tag in " + xmlFile, 0);
+												}
+												status = Status.getStatusByLabel(content);
+											} else if(WHO_NODE_NAME.equals(nodeName)) {
+												if(who == null) who = new ArrayList<User>();
+												who.add(User.valueOf(content));
+											} else if(CUSTOM_NODE_NAME.equals(nodeName)) {
+												if(custom==null) custom = new LinkedHashMap<String,String>();
+												if(!elem.hasAttribute(CUSTOM_NAME_ATTRIBUTE_NAME)) {
+													throw new ParseException(CUSTOM_NAME_ATTRIBUTE_NAME + " attribute missing from " + CUSTOM_NODE_NAME + " tag in " + xmlFile, 0);
+												}
+												String name = elem.getAttribute(CUSTOM_NAME_ATTRIBUTE_NAME);
+												if(custom.containsKey(name)) {
+													throw new ParseException("Duplicate " + CUSTOM_NAME_ATTRIBUTE_NAME + " attribute in " + CUSTOM_NODE_NAME + " tag in " + xmlFile + ": " + name, 0);
+												}
+												custom.put(name, content);
+											} else if(COMMENTS_NODE_NAME.equals(nodeName)) {
+												if(comments != null) {
+													throw new ParseException("Multiple " + COMMENTS_NODE_NAME + " tag in " + xmlFile, 0);
+												}
+												comments = content;
+											} else {
+												throw new ParseException("Unexpected child element \"" + nodeName + "\" in " + xmlFile, 0);
 											}
-											lastScheduledOn = scheduledOn;
-											if(!scheduledOns.add(scheduledOn)) {
-												throw new ParseException("Duplicate " + SCHEDULED_ON_NODE_NAME + " value \"" + content + "\" in " + xmlFile, 0);
-											}
-										} else if(ON_NODE_NAME.equals(nodeName)) {
-											if(on != null) {
-												throw new ParseException("Multiple " + ON_NODE_NAME + " tag in " + xmlFile, 0);
-											}
-											on = CalendarUtils.parseDate(content);
-										} else if(STATUS_NODE_NAME.equals(nodeName)) {
-											if(status != null) {
-												throw new ParseException("Multiple " + STATUS_NODE_NAME + " tag in " + xmlFile, 0);
-											}
-											status = Status.getStatusByLabel(content);
-										} else if(WHO_NODE_NAME.equals(nodeName)) {
-											if(who == null) who = new ArrayList<User>();
-											who.add(User.valueOf(content));
-										} else if(CUSTOM_NODE_NAME.equals(nodeName)) {
-											if(custom==null) custom = new LinkedHashMap<String,String>();
-											if(!elem.hasAttribute(CUSTOM_NAME_ATTRIBUTE_NAME)) {
-												throw new ParseException(CUSTOM_NAME_ATTRIBUTE_NAME + " attribute missing from " + CUSTOM_NODE_NAME + " tag in " + xmlFile, 0);
-											}
-											String name = elem.getAttribute(CUSTOM_NAME_ATTRIBUTE_NAME);
-											if(custom.containsKey(name)) {
-												throw new ParseException("Duplicate " + CUSTOM_NAME_ATTRIBUTE_NAME + " attribute in " + CUSTOM_NODE_NAME + " tag in " + xmlFile + ": " + name, 0);
-											}
-											custom.put(name, content);
-										} else if(COMMENTS_NODE_NAME.equals(nodeName)) {
-											if(comments != null) {
-												throw new ParseException("Multiple " + COMMENTS_NODE_NAME + " tag in " + xmlFile, 0);
-											}
-											comments = content;
-										} else {
-											throw new ParseException("Unexpected child element \"" + nodeName + "\" in " + xmlFile, 0);
 										}
 									}
+
+									Entry newEntry = new Entry(
+										scheduledOns,
+										on,
+										status,
+										who,
+										custom,
+										comments
+									);
+									// The entries must be in order by "on" value
+									if(lastEntry!=null && newEntry.on.before(lastEntry.on)) {
+										throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on) + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + xmlFile, 0);
+									}
+									lastEntry = newEntry;
+									newEntries.add(newEntry);
 								}
-								
-								Entry newEntry = new Entry(
-									scheduledOns,
-									on,
-									status,
-									who,
-									custom,
-									comments
-								);
-								// The entries must be in order by "on" value
-								if(lastEntry!=null && newEntry.on.before(lastEntry.on)) {
-									throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on) + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + xmlFile, 0);
-								}
-								lastEntry = newEntry;
-								newEntries.add(newEntry);
 							}
 						}
+						unmodifiableEntries = Collections.unmodifiableList(newEntries);
+						// Clear-out any cached values based on the old entries
+						unmodifiableEntriesByScheduledOn = null;
+						//unmodifiableProgressByScheduledOn = null;
+						firstIncompleteFrom = null;
+						firstIncompleteRecurring = null;
+						firstIncompleteResult = null;
+						// Update last modified time for cache
+						entriesLastModified = fileLastModified;
 					}
-					unmodifiableEntries = Collections.unmodifiableList(newEntries);
-					// Clear-out any cached values based on the old entries
-					unmodifiableEntriesByScheduledOn = null;
-					//unmodifiableProgressByScheduledOn = null;
-					firstIncompleteFrom = null;
-					firstIncompleteRecurring = null;
-					firstIncompleteResult = null;
-					// Update last modified time for cache
-					entriesLastModified = fileLastModified;
+					return unmodifiableEntries;
+				} finally {
+					conn.close();
 				}
-				return unmodifiableEntries;
 			}
 		} catch(ParserConfigurationException e) {
 			throw new IOException(e);
@@ -551,15 +560,20 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 */
 	private void commitChanges(List<Entry> newEntries) throws IOException {
 		assert Thread.holdsLock(entriesLock);
-		if(true) throw new NotImplementedException("TODO: Write to file");
-		unmodifiableEntries = Collections.unmodifiableList(newEntries);
-		// Clear-out any cached values based on the old entries
-		unmodifiableEntriesByScheduledOn = null;
-		firstIncompleteFrom = null;
-		firstIncompleteRecurring = null;
-		firstIncompleteResult = null;
-		// Update last modified time for cache
-		entriesLastModified = xmlFile.getLastModified(); // Note: File must always exist after it was written
+		ResourceConnection conn = xmlFile.open();
+		try {
+			if(true) throw new NotImplementedException("TODO: Write to file");
+			unmodifiableEntries = Collections.unmodifiableList(newEntries);
+			// Clear-out any cached values based on the old entries
+			unmodifiableEntriesByScheduledOn = null;
+			firstIncompleteFrom = null;
+			firstIncompleteRecurring = null;
+			firstIncompleteResult = null;
+			// Update last modified time for cache
+			entriesLastModified = conn.getLastModified(); // Note: File must always exist after it was written
+		} finally {
+			conn.close();
+		}
 	}
 
 	/**

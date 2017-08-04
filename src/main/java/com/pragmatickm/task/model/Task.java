@@ -378,6 +378,6 @@ public class Task extends Element {
 	public TaskLog getTaskLog() throws IOException {
 		ResourceRef xf = xmlFile;
 		if(xf==null) throw new IllegalStateException("xmlFile not set");
-		return TaskLog.getTaskLog(resourceStore.getResource(xf));
+		return TaskLog.getTaskLog(resourceStore, xf);
 	}
 }
