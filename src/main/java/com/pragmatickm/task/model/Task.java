@@ -31,7 +31,7 @@ import com.aoindustries.util.schedule.Recurring;
 import com.semanticcms.core.model.Element;
 import com.semanticcms.core.model.ElementRef;
 import com.semanticcms.core.model.ResourceRef;
-import com.semanticcms.core.model.ResourceStore;
+import com.semanticcms.core.resources.ResourceStore;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
