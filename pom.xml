@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
-Copyright (C) 2016, 2017, 2019  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -57,21 +57,19 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<profile>
 			<id>release</id>
 			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId><artifactId>maven-javadoc-plugin</artifactId>
-							<configuration>
-								<links>
-									<link>${javac.link.javaApi}</link>
-									<link>https://aoindustries.com/ao-taglib/apidocs/</link>
-									<link>https://aoindustries.com/aocode-public/apidocs/</link>
-									<link>https://semanticcms.com/core/model/apidocs/</link>
-								</links>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId><artifactId>maven-javadoc-plugin</artifactId>
+						<configuration>
+							<links>
+								<link>${javac.link.javaApi}</link>
+								<link>https://aoindustries.com/ao-taglib/apidocs</link>
+								<link>https://aoindustries.com/aocode-public/apidocs</link>
+								<link>https://semanticcms.com/core/model/apidocs</link>
+							</links>
+						</configuration>
+					</plugin>
+				</plugins>
 			</build>
 		</profile>
 	</profiles>
