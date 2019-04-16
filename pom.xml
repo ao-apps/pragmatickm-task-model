@@ -40,7 +40,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<description.html><![CDATA[Tasks nested within <a target="_top" href="https://semanticcms.com/">SemanticCMS</a> pages and elements.]]></description.html>
 	</properties>
 
-	<name>PragmaticKM 1 Task Model</name>
+	<name>PragmaticKM Task Model</name>
 	<url>https://pragmatickm.com/task/model/</url>
 	<description>Tasks nested within SemanticCMS pages and elements.</description>
 	<inceptionYear>2013</inceptionYear>
