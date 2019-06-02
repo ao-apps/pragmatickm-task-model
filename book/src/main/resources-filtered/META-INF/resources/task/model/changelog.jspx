@@ -53,6 +53,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 				artifactId="@{documented.artifactId}"
 				scmUrl="@{documented.scm.url}"
 			/>
+			<!-- TODO: <li>Minimum Java version changed from 1.6 to 1.7.</li>-->
 		</c:if>
 
 		<changelog:release
