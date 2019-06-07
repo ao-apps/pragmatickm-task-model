@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -191,7 +191,7 @@ public class Task extends Element {
 			checkNotFrozen();
 			if(!who.isPerson()) throw new IllegalArgumentException("Not a person: " + who);
 			if(assignedTo == null) {
-				assignedTo = new ArrayList<TaskAssignment>();
+				assignedTo = new ArrayList<>();
 			} else {
 				if(getAssignedTo(who) != null) throw new IllegalStateException("Assigned to person twice: " + who);
 			}
@@ -243,7 +243,7 @@ public class Task extends Element {
 		synchronized(lock) {
 			checkNotFrozen();
 			if(priorities == null) {
-				priorities = new ArrayList<TaskPriority>();
+				priorities = new ArrayList<>();
 			} else {
 				boolean isZeroDay = after.getCount() == 0;
 				if(isZeroDay) {
@@ -333,7 +333,7 @@ public class Task extends Element {
 	public void addDoBefore(ElementRef doBefore) {
 		synchronized(lock) {
 			checkNotFrozen();
-			if(doBefores == null) doBefores = new LinkedHashSet<ElementRef>();
+			if(doBefores == null) doBefores = new LinkedHashSet<>();
 			if(!doBefores.add(doBefore)) throw new IllegalArgumentException("Duplicate doBefore: " + doBefore);
 			// TODO: Both directions for page links?
 			addPageLink(doBefore.getPageRef());
@@ -353,7 +353,7 @@ public class Task extends Element {
 		NullArgumentException.checkNotNull(name, "name");
 		synchronized(lock) {
 			checkNotFrozen();
-			if(customLogs==null) customLogs = new LinkedHashSet<String>();
+			if(customLogs==null) customLogs = new LinkedHashSet<>();
 			if(!customLogs.add(name)) throw new IllegalStateException("Custom log added twice: " + name);
 		}
 	}

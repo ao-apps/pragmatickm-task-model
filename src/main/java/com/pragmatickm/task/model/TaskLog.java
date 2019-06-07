@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -22,11 +22,9 @@
  */
 package com.pragmatickm.task.model;
 
-import com.aoindustries.lang.NotImplementedException;
 import com.aoindustries.lang.NullArgumentException;
 import com.aoindustries.util.AoCollections;
 import com.aoindustries.util.CalendarUtils;
-import com.aoindustries.util.ComparatorUtils;
 import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.WrappedException;
 import com.aoindustries.util.schedule.Recurring;
@@ -163,12 +161,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		public int compare(Calendar o1, Calendar o2) {
 			long millis1 = o1.getTimeInMillis();
 			long millis2 = o2.getTimeInMillis();
-			return ComparatorUtils.compare(millis1, millis2);
+			return Long.compare(millis1, millis2);
 		}
 	};
 
 	private static SortedSet<UnmodifiableCalendar> makeUnmodifiable(Set<? extends Calendar> calendars) {
-		SortedSet<UnmodifiableCalendar> result = new TreeSet<UnmodifiableCalendar>(calendarInMilliOrderComparator);
+		SortedSet<UnmodifiableCalendar> result = new TreeSet<>(calendarInMilliOrderComparator);
 		for(Calendar cal : calendars) {
 			if(!result.add(UnmodifiableCalendar.wrap(cal))) throw new AssertionError();
 		}
@@ -247,7 +245,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
-	private static final Map<PageRef,TaskLog> taskLogCache = new HashMap<PageRef,TaskLog>();
+	private static final Map<PageRef,TaskLog> taskLogCache = new HashMap<>();
 
 	/**
 	 * To avoid repetitive parsing, only one TaskLog is created for each unique PageRef.
@@ -305,7 +303,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 					// File updated externally
 					|| entriesLastModified != fileLastModified
 				) {
-					List<Entry> newEntries = new ArrayList<Entry>();
+					List<Entry> newEntries = new ArrayList<>();
 					Entry lastEntry = null;
 					if(resourceFile.exists()) {
 						DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
@@ -340,7 +338,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 										// Java 1.8: switch(nodeName) {
 										if(SCHEDULED_ON_NODE_NAME.equals(nodeName)) {
 											if(scheduledOns == null) {
-												scheduledOns = new LinkedHashSet<Calendar>();
+												scheduledOns = new LinkedHashSet<>();
 											}
 											Calendar scheduledOn = CalendarUtils.parseDate(content);
 											if(lastScheduledOn != null) {
@@ -364,10 +362,10 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 											}
 											status = Status.getStatusByLabel(content);
 										} else if(WHO_NODE_NAME.equals(nodeName)) {
-											if(who == null) who = new ArrayList<User>();
+											if(who == null) who = new ArrayList<>();
 											who.add(User.valueOf(content));
 										} else if(CUSTOM_NODE_NAME.equals(nodeName)) {
-											if(custom==null) custom = new LinkedHashMap<String,String>();
+											if(custom==null) custom = new LinkedHashMap<>();
 											if(!elem.hasAttribute(CUSTOM_NAME_ATTRIBUTE_NAME)) {
 												throw new ParseException(CUSTOM_NAME_ATTRIBUTE_NAME + " attribute missing from " + CUSTOM_NODE_NAME + " tag in " + resourceFile, 0);
 											}
@@ -416,11 +414,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 				}
 				return unmodifiableEntries;
 			}
-		} catch(ParserConfigurationException e) {
-			throw new IOException(e);
-		} catch(SAXException e) {
-			throw new IOException(e);
-		} catch(ParseException e) {
+		} catch(ParserConfigurationException | SAXException | ParseException e) {
 			throw new IOException(e);
 		}
 	}
@@ -453,7 +447,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 			// Call getEntries always because it will refresh data when file changed
 			List<Entry> allEntries = getEntries();
 			if(unmodifiableEntriesByScheduledOn == null) {
-				Map<String,List<Entry>> entriesByScheduledOn = new LinkedHashMap<String,List<Entry>>();
+				Map<String,List<Entry>> entriesByScheduledOn = new LinkedHashMap<>();
 				for(Entry entry : allEntries) {
 					Collection<UnmodifiableCalendar> scheduledOns = entry.getScheduledOns();
 					// Must always handle the "null" key for when there are not scheduled ons
@@ -462,7 +456,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 						String entryScheduledOnString = CalendarUtils.formatDate(scheduledOn);
 						List<Entry> entriesScheduledOn = entriesByScheduledOn.get(entryScheduledOnString);
 						if(entriesScheduledOn == null) {
-							entriesScheduledOn = new ArrayList<Entry>();
+							entriesScheduledOn = new ArrayList<>();
 							entriesByScheduledOn.put(entryScheduledOnString, entriesScheduledOn);
 						}
 						entriesScheduledOn.add(entry);
@@ -527,7 +521,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	public void addEntry(Entry entry) throws IOException {
 		synchronized(entriesLock) {
 			List<Entry> oldEntries = getEntries();
-			List<Entry> newEntries = new ArrayList<Entry>(oldEntries.size() + 1);
+			List<Entry> newEntries = new ArrayList<>(oldEntries.size() + 1);
 			newEntries.addAll(oldEntries);
 			newEntries.add(entry);
 			commitChanges(newEntries);
@@ -540,9 +534,10 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 *
 	 * @param  newEntries  this does not need to be unmodifiable, it will be wrapped automatically
 	 */
+	@SuppressWarnings("deprecation")
 	private void commitChanges(List<Entry> newEntries) throws IOException {
 		assert Thread.holdsLock(entriesLock);
-		if(true) throw new NotImplementedException("TODO: Write to file");
+		if(true) throw new com.aoindustries.lang.NotImplementedException("TODO: Write to file");
 		unmodifiableEntries = Collections.unmodifiableList(newEntries);
 		// Clear-out any cached values based on the old entries
 		unmodifiableEntriesByScheduledOn = null;
