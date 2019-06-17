@@ -39,5 +39,4 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		datePublished="2017-07-25T17:39:09-0500"
 		dateModified="${ao:getLastModified('index.html')}"
 	/>
-	<!-- TODO: Pick-up javadocs version, not pom version, in title, here and elsewhere -->
 </jsp:root>
