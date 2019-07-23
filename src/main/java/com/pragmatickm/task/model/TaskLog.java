@@ -37,6 +37,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -319,9 +320,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 						) {
 							if(child instanceof Element) {
 								if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + resourceFile, 0);
-								Calendar lastScheduledOn = null;
-								Set<Calendar> scheduledOns = null;
-								Calendar on = null;
+								GregorianCalendar lastScheduledOn = null;
+								Set<GregorianCalendar> scheduledOns = null;
+								GregorianCalendar on = null;
 								Status status = null;
 								List<User> who = null;
 								Map<String,String> custom = null;
@@ -340,7 +341,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 											if(scheduledOns == null) {
 												scheduledOns = new LinkedHashSet<>();
 											}
-											Calendar scheduledOn = CalendarUtils.parseDate(content);
+											GregorianCalendar scheduledOn = CalendarUtils.parseDate(content);
 											if(lastScheduledOn != null) {
 												// Must be in order
 												if(scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
