@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -67,15 +67,15 @@ import org.xml.sax.SAXException;
 public class TaskLog implements Iterable<TaskLog.Entry> {
 
 	private static final String
-		ROOT_NODE_NAME             = "tasklog",
-		ENTRY_NODE_NAME            = "entry",
-		SCHEDULED_ON_NODE_NAME     = "scheduledOn",
-		ON_NODE_NAME               = "on",
-		STATUS_NODE_NAME           = "status",
-		WHO_NODE_NAME              = "who",
-		CUSTOM_NODE_NAME           = "custom",
-		CUSTOM_NAME_ATTRIBUTE_NAME = "name",
-		COMMENTS_NODE_NAME         = "comments"
+		ROOT_NODE             = "tasklog",
+		ENTRY_NODE            = "entry",
+		SCHEDULED_ON_NODE     = "scheduledOn",
+		ON_NODE               = "on",
+		STATUS_NODE           = "status",
+		WHO_NODE              = "who",
+		CUSTOM_NODE           = "custom",
+		CUSTOM_NAME_ATTRIBUTE = "name",
+		COMMENTS_NODE         = "comments"
 	;
 
 	public enum Status {
@@ -160,14 +160,10 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
-	private static final Comparator<Calendar> calendarInMilliOrderComparator = new Comparator<Calendar>() {
-		@Override
-		public int compare(Calendar o1, Calendar o2) {
-			long millis1 = o1.getTimeInMillis();
-			long millis2 = o2.getTimeInMillis();
-			return Long.compare(millis1, millis2);
-		}
-	};
+	private static final Comparator<Calendar> calendarInMilliOrderComparator = (cal1, cal2) -> Long.compare(
+		cal1.getTimeInMillis(),
+		cal2.getTimeInMillis()
+	);
 
 	private static SortedSet<UnmodifiableCalendar> makeUnmodifiable(Set<? extends Calendar> calendars) {
 		SortedSet<UnmodifiableCalendar> result = new TreeSet<>(calendarInMilliOrderComparator);
@@ -323,14 +319,14 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 							// http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 							Element root = document.getDocumentElement();
 							root.normalize();
-							if(!ROOT_NODE_NAME.equals(root.getNodeName())) throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + xmlFile, 0);
+							if(!ROOT_NODE.equals(root.getNodeName())) throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + xmlFile, 0);
 							for(
 								Node child = root.getFirstChild();
 								child != null;
 								child = child.getNextSibling()
 							) {
 								if(child instanceof Element) {
-									if(!ENTRY_NODE_NAME.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + xmlFile, 0);
+									if(!ENTRY_NODE.equals(child.getNodeName())) throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + xmlFile, 0);
 									GregorianCalendar lastScheduledOn = null;
 									Set<GregorianCalendar> scheduledOns = null;
 									GregorianCalendar on = null;
@@ -348,7 +344,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 											String content = elem.getTextContent();
 											String nodeName = elem.getNodeName();
 											// Java 1.8: switch(nodeName) {
-											if(SCHEDULED_ON_NODE_NAME.equals(nodeName)) {
+											if(SCHEDULED_ON_NODE.equals(nodeName)) {
 												if(scheduledOns == null) {
 													scheduledOns = new LinkedHashSet<>();
 												}
@@ -356,39 +352,39 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 												if(lastScheduledOn != null) {
 													// Must be in order
 													if(scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
-														throw new ParseException("Out of order " + SCHEDULED_ON_NODE_NAME + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + xmlFile, 0);
+														throw new ParseException("Out of order " + SCHEDULED_ON_NODE + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + xmlFile, 0);
 													}
 												}
 												lastScheduledOn = scheduledOn;
 												if(!scheduledOns.add(scheduledOn)) {
-													throw new ParseException("Duplicate " + SCHEDULED_ON_NODE_NAME + " value \"" + content + "\" in " + xmlFile, 0);
+													throw new ParseException("Duplicate " + SCHEDULED_ON_NODE + " value \"" + content + "\" in " + xmlFile, 0);
 												}
-											} else if(ON_NODE_NAME.equals(nodeName)) {
+											} else if(ON_NODE.equals(nodeName)) {
 												if(on != null) {
-													throw new ParseException("Multiple " + ON_NODE_NAME + " tag in " + xmlFile, 0);
+													throw new ParseException("Multiple " + ON_NODE + " tag in " + xmlFile, 0);
 												}
 												on = CalendarUtils.parseDate(content);
-											} else if(STATUS_NODE_NAME.equals(nodeName)) {
+											} else if(STATUS_NODE.equals(nodeName)) {
 												if(status != null) {
-													throw new ParseException("Multiple " + STATUS_NODE_NAME + " tag in " + xmlFile, 0);
+													throw new ParseException("Multiple " + STATUS_NODE + " tag in " + xmlFile, 0);
 												}
 												status = Status.getStatusByLabel(content);
-											} else if(WHO_NODE_NAME.equals(nodeName)) {
+											} else if(WHO_NODE.equals(nodeName)) {
 												if(who == null) who = new ArrayList<>();
 												who.add(User.valueOf(content));
-											} else if(CUSTOM_NODE_NAME.equals(nodeName)) {
+											} else if(CUSTOM_NODE.equals(nodeName)) {
 												if(custom==null) custom = new LinkedHashMap<>();
-												if(!elem.hasAttribute(CUSTOM_NAME_ATTRIBUTE_NAME)) {
-													throw new ParseException(CUSTOM_NAME_ATTRIBUTE_NAME + " attribute missing from " + CUSTOM_NODE_NAME + " tag in " + xmlFile, 0);
+												if(!elem.hasAttribute(CUSTOM_NAME_ATTRIBUTE)) {
+													throw new ParseException(CUSTOM_NAME_ATTRIBUTE + " attribute missing from " + CUSTOM_NODE + " tag in " + xmlFile, 0);
 												}
-												String name = elem.getAttribute(CUSTOM_NAME_ATTRIBUTE_NAME);
+												String name = elem.getAttribute(CUSTOM_NAME_ATTRIBUTE);
 												if(custom.containsKey(name)) {
-													throw new ParseException("Duplicate " + CUSTOM_NAME_ATTRIBUTE_NAME + " attribute in " + CUSTOM_NODE_NAME + " tag in " + xmlFile + ": " + name, 0);
+													throw new ParseException("Duplicate " + CUSTOM_NAME_ATTRIBUTE + " attribute in " + CUSTOM_NODE + " tag in " + xmlFile + ": " + name, 0);
 												}
 												custom.put(name, content);
-											} else if(COMMENTS_NODE_NAME.equals(nodeName)) {
+											} else if(COMMENTS_NODE.equals(nodeName)) {
 												if(comments != null) {
-													throw new ParseException("Multiple " + COMMENTS_NODE_NAME + " tag in " + xmlFile, 0);
+													throw new ParseException("Multiple " + COMMENTS_NODE + " tag in " + xmlFile, 0);
 												}
 												comments = content;
 											} else {
