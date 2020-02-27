@@ -37,7 +37,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2017-07-25T17:39:09-0500"
-		dateModified="2019-11-03T02:12:52-0600"
+		dateModified="2020-02-26T20:09:57-0600"
 	>
 		<!-- The current snapshot, unreleased version -->
 		<c:set var="version" value="@{com.pragmatickm:pragmatickm-task-model:pom.version}" />
