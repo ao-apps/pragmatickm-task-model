@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2020  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -26,11 +26,11 @@ package com.pragmatickm.task.model;
  * Task priorities.
  */
 public enum Priority {
-	FUTURE("Future", "task_priority_future"),
-	LOW("Low", "task_priority_low"),
-	MEDIUM("Medium", "task_priority_medium"),
-	HIGH("High", "task_priority_high"),
-	CRITICAL("Critical", "task_priority_critical");
+	FUTURE  ("Future",   "pragmatickm-task-priority-future"),
+	LOW     ("Low",      "pragmatickm-task-priority-low"),
+	MEDIUM  ("Medium",   "pragmatickm-task-priority-medium"),
+	HIGH    ("High",     "pragmatickm-task-priority-high"),
+	CRITICAL("Critical", "pragmatickm-task-priority-critical");
 
 	public static final Priority DEFAULT_PRIORITY = MEDIUM;
 	public static final Priority MAX_PRIORITY = CRITICAL;
@@ -48,6 +48,8 @@ public enum Priority {
 		return display;
 	}
 
+	// TODO: This CSS Class should go in pragmatickm-task-servlet
+	// TODO: See StatusResult.java
 	public String getCssClass() {
 		return cssClass;
 	}
