@@ -35,8 +35,6 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 	<properties>
 		<!-- These values are copied from the project being documented -->
 		<documented.artifactId>pragmatickm-task-model</documented.artifactId>
-		<documented.javaVersion>1.8</documented.javaVersion>
-		<documented.javac.link.javaApi>${javac.link.javaApi.jdk8}</documented.javac.link.javaApi>
 		<documented.name>PragmaticKM Task Model²</documented.name>
 		<documented.shortTitle>Model</documented.shortTitle>
 		<documented.description>Tasks nested within SemanticCMS pages and elements.</documented.description>
