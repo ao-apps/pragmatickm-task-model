@@ -22,8 +22,8 @@
  */
 package com.pragmatickm.task.model;
 
+import com.aoindustries.collections.AoCollections;
 import com.aoindustries.lang.NullArgumentException;
-import com.aoindustries.util.AoCollections;
 import static com.aoindustries.lang.Strings.nullIfEmpty;
 import com.aoindustries.util.UnmodifiableCalendar;
 import com.aoindustries.util.schedule.DayDuration;
