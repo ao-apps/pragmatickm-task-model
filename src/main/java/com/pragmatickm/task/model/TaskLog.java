@@ -50,6 +50,7 @@ import java.util.TreeSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -531,10 +532,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 *
 	 * @param  newEntries  this does not need to be unmodifiable, it will be wrapped automatically
 	 */
-	@SuppressWarnings("deprecation")
 	private void commitChanges(List<Entry> newEntries) throws IOException {
 		assert Thread.holdsLock(entriesLock);
-		if(true) throw new com.aoindustries.exception.NotImplementedException("TODO: Write to file");
+		if(true) throw new NotImplementedException("TODO: Write to file");
 		unmodifiableEntries = Collections.unmodifiableList(newEntries);
 		// Clear-out any cached values based on the old entries
 		unmodifiableEntriesByScheduledOn = null;
