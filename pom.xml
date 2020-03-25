@@ -39,7 +39,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<shortTitle>Model</shortTitle>
 		<description.html><![CDATA[Tasks nested within <a target="_top" href="https://semanticcms.com/">SemanticCMS</a> pages and elements.]]></description.html>
 		<!-- Dependencies -->
-		<org.apache.commons:commons-lang3:version>3.9</org.apache.commons:commons-lang3:version>
+		<org.apache.commons.commons-lang3.version>3.9</org.apache.commons.commons-lang3.version>
 	</properties>
 
 	<name>PragmaticKM Task Model</name>
@@ -69,7 +69,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 								<link>https://aoindustries.com/ao-collections/apidocs/</link>
 								<link>https://aoindustries.com/ao-lang/apidocs/</link>
 								<link>https://aoindustries.com/aocode-public/apidocs/</link>
-								<link>https://commons.apache.org/proper/commons-lang/javadocs/api-${org.apache.commons:commons-lang3:version}/</link>
+								<link>https://commons.apache.org/proper/commons-lang/javadocs/api-${org.apache.commons.commons-lang3.version}/</link>
 								<link>https://semanticcms.com/core/model/apidocs/</link>
 							</links>
 						</configuration>
@@ -92,7 +92,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoindustries</groupId><artifactId>aocode-public</artifactId><version>4.0.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>${org.apache.commons:commons-lang3:version}</version>
+				<groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.semanticcms</groupId><artifactId>semanticcms-core-model</artifactId><version>1.11.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
