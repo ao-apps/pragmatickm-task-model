@@ -23,10 +23,10 @@
 package com.pragmatickm.task.model;
 
 import com.aoindustries.collections.AoCollections;
+import com.aoindustries.exception.WrappedException;
 import com.aoindustries.lang.NullArgumentException;
 import com.aoindustries.util.CalendarUtils;
 import com.aoindustries.util.UnmodifiableCalendar;
-import com.aoindustries.util.WrappedException;
 import com.aoindustries.util.schedule.Recurring;
 import com.semanticcms.core.model.ResourceRef;
 import com.semanticcms.core.resources.Resource;
@@ -547,7 +547,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	private void commitChanges(List<Entry> newEntries) throws IOException {
 		assert Thread.holdsLock(entriesLock);
 		try (ResourceConnection conn = xmlFile.open()) {
-			if(true) throw new com.aoindustries.lang.NotImplementedException("TODO: Write to file");
+			if(true) throw new com.aoindustries.exception.NotImplementedException("TODO: Write to file");
 			unmodifiableEntries = Collections.unmodifiableList(newEntries);
 			// Clear-out any cached values based on the old entries
 			unmodifiableEntriesByScheduledOn = null;
