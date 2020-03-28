@@ -39,7 +39,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<shortTitle>Model</shortTitle>
 		<description.html><![CDATA[Tasks nested within <a target="_top" href="https://semanticcms.com/">SemanticCMS</a> pages and elements.]]></description.html>
 		<!-- Dependencies -->
-		<org.apache.commons.commons-lang3.version>3.9</org.apache.commons.commons-lang3.version>
+		<org.apache.commons.commons-lang3.version>3.10</org.apache.commons.commons-lang3.version>
 	</properties>
 
 	<name>PragmaticKM Task Model</name>
