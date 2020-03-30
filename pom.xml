@@ -48,7 +48,6 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 	<inceptionYear>2013</inceptionYear>
 
 	<scm>
-		<!-- Can't inherit due to multi-module -->
 		<connection>scm:git:git://github.com/aoindustries/pragmatickm-task-model.git</connection>
 		<developerConnection>scm:git:git@github.com:aoindustries/pragmatickm-task-model.git</developerConnection>
 		<url>https://github.com/aoindustries/pragmatickm-task-model</url>
