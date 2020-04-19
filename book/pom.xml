@@ -39,7 +39,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<documented.shortTitle>Model</documented.shortTitle>
 		<documented.description>Tasks nested within SemanticCMS pages and elements.</documented.description>
 
-		<description.html><![CDATA[Documentation for <a target="_top" href="${project.url}">${documented.name}</a> in <a target="_top" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
+		<description.html><![CDATA[Documentation for <a target="${javadoc.target}" href="${project.url}">${documented.name}</a> in <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
 	</properties>
 
 	<name>PragmaticKM Task Model² Book</name>
