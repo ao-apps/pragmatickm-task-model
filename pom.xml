@@ -75,7 +75,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 								<link>https://aoindustries.com/aocode-public/apidocs/</link>
 								<link>https://commons.apache.org/proper/commons-lang/javadocs/api-${org.apache.commons.commons-lang3.version}/</link>
 								<link>https://semanticcms.com/core/model/apidocs/</link>
-								<link>https://semanticcms.com/core/resources/apidocs/</link>
+								<!-- TODO: Once published: <link>https://semanticcms.com/core/resources/apidocs/</link> -->
 							</links>
 						</configuration>
 					</plugin>
