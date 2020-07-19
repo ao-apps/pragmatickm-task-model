@@ -39,7 +39,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<shortTitle>Model</shortTitle>
 		<description.html><![CDATA[Tasks nested within <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> pages and elements.]]></description.html>
 		<!-- Dependencies -->
-		<commons-lang3.version>3.10</commons-lang3.version>
+		<commons-lang3.version>3.11</commons-lang3.version>
 	</properties>
 
 	<name>PragmaticKM Task Model</name>
