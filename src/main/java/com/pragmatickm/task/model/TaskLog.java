@@ -214,6 +214,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		 * empty set if not applies to any schedules.  These are ordered by
 		 * time in milliseconds ascending.
 		 */
+		@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 		public SortedSet<UnmodifiableCalendar> getScheduledOns() {
 			return scheduledOns;
 		}
@@ -222,6 +223,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		 * The date this action was actually taken.  This may not necessarily
 		 * be on the scheduled date, but still counts status toward the scheduled date.
 		 */
+		@SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
 		public UnmodifiableCalendar getOn() {
 			return on;
 		}
@@ -230,10 +232,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 			return status;
 		}
 
+		@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 		public List<User> getWho() {
 			return unmodifiableWho;
 		}
 
+		@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 		public Map<String,String> getCustom() {
 			return unmodifiableCustom;
 		}
@@ -289,6 +293,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 * Entries are in order by "on" time.
 	 * </p>
 	 */
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 	public List<Entry> getEntries() throws IOException {
 		try {
 			final File resourceFile = xmlFile.getResourceFile(true, false);
@@ -440,6 +445,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 * 
 	 * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
 	 */
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 	public Map<String,List<Entry>> getEntriesByScheduledOnDate() throws IOException {
 		synchronized(entriesLock) {
 			// Call getEntries always because it will refresh data when file changed
@@ -560,6 +566,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	/**
 	 * Gets the first incomplete scheduled on date.
 	 */
+	@SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
 	public UnmodifiableCalendar getFirstIncompleteScheduledOn(
 		Calendar from,
 		Recurring recurring
