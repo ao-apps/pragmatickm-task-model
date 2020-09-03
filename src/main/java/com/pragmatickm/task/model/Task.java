@@ -127,6 +127,7 @@ public class Task extends Element {
 		return "task";
 	}
 
+	@SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
 	public UnmodifiableCalendar getOn() {
 		return on;
 	}
@@ -166,6 +167,7 @@ public class Task extends Element {
 	 * Gets the users the task is assigned to or a single-element list of "Unassigned"
 	 * if unassigned.
 	 */
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 	public List<TaskAssignment> getAssignedTo() {
 		synchronized(lock) {
 			if(assignedTo == null) return Collections.singletonList(TaskAssignment.UNASSIGNED);
@@ -228,6 +230,7 @@ public class Task extends Element {
 	/**
 	 * Gets the priorities of the task.
 	 */
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 	public List<TaskPriority> getPriorities() {
 		synchronized(lock) {
 			if(priorities == null) return TaskPriority.DEFAULT_TASK_PRIORITY_LIST;
@@ -241,6 +244,7 @@ public class Task extends Element {
 	 *
 	 * Must hold lock already.
 	 */
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // No defensive copy
 	private List<TaskPriority> fastGetPriorities() {
 		assert Thread.holdsLock(lock);
 		if(priorities == null) return TaskPriority.DEFAULT_TASK_PRIORITY_LIST;
@@ -330,6 +334,7 @@ public class Task extends Element {
 	 * Gets all the doBefores for this task.
 	 * It is up to the caller to look-up the referenced elements.
 	 */
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 	public Set<ElementRef> getDoBefores() {
 		synchronized(lock) {
 			if(doBefores == null) return Collections.emptySet();
@@ -348,6 +353,7 @@ public class Task extends Element {
 		}
 	}
 
+	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
 	public Set<String> getCustomLogs() {
 		synchronized(lock) {
 			if(customLogs==null) return Collections.emptySet();
