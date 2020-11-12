@@ -175,7 +175,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoindustries</groupId><artifactId>ao-web-resources-registry</artifactId><version>0.2.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>joda-time</groupId><artifactId>joda-time</artifactId><version>2.10.6</version>
+				<groupId>joda-time</groupId><artifactId>joda-time</artifactId><version>2.10.8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
