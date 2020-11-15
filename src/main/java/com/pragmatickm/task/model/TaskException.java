@@ -22,6 +22,8 @@
  */
 package com.pragmatickm.task.model;
 
+import com.aoindustries.lang.Throwables;
+
 public class TaskException extends Exception {
 
 	private static final long serialVersionUID = 1L;
@@ -36,5 +38,11 @@ public class TaskException extends Exception {
 
 	public TaskException(String message, Throwable cause) {
 		super(message, cause);
+	}
+
+	static {
+		Throwables.registerSurrogateFactory(TaskException.class, (template, cause) ->
+			new TaskException(template.getMessage(), cause)
+		);
 	}
 }
