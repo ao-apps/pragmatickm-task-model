@@ -23,7 +23,6 @@
 package com.pragmatickm.task.model;
 
 import com.aoindustries.collections.AoCollections;
-import com.aoindustries.exception.WrappedException;
 import com.aoindustries.lang.NullArgumentException;
 import com.aoindustries.util.CalendarUtils;
 import com.aoindustries.util.UnmodifiableCalendar;
@@ -34,6 +33,7 @@ import com.semanticcms.core.resources.ResourceConnection;
 import com.semanticcms.core.resources.ResourceStore;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -444,7 +444,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		try {
 			return getEntries().iterator();
 		} catch(IOException e) {
-			throw new WrappedException(e);
+			throw new UncheckedIOException(e);
 		}
 	}
 
