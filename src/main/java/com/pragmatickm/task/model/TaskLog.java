@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -176,7 +176,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		private final UnmodifiableCalendar on;
 		private final Status status;
 		private final List<User> unmodifiableWho;
-		private final Map<String,String> unmodifiableCustom;
+		private final Map<String, String> unmodifiableCustom;
 		private final String comments;
 
 		public Entry(
@@ -184,7 +184,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 			Calendar on,
 			Status status,
 			List<User> who,
-			Map<String,String> custom,
+			Map<String, String> custom,
 			String comments
 		) {
 			if(scheduledOns==null) {
@@ -238,7 +238,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 
 		@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
-		public Map<String,String> getCustom() {
+		public Map<String, String> getCustom() {
 			return unmodifiableCustom;
 		}
 
@@ -247,7 +247,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		}
 	}
 
-	private static final Map<PageRef,TaskLog> taskLogCache = new HashMap<>();
+	private static final Map<PageRef, TaskLog> taskLogCache = new HashMap<>();
 
 	/**
 	 * To avoid repetitive parsing, only one TaskLog is created for each unique PageRef.
@@ -267,8 +267,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	private final EntriesLock entriesLock = new EntriesLock();
 	private long entriesLastModified;
 	private List<Entry> unmodifiableEntries;
-	private Map<String,List<Entry>> unmodifiableEntriesByScheduledOn;
-	//private Map<String,Set<String>> unmodifiableProgressByScheduledOn;
+	private Map<String, List<Entry>> unmodifiableEntriesByScheduledOn;
+	//private Map<String, Set<String>> unmodifiableProgressByScheduledOn;
 	private UnmodifiableCalendar firstIncompleteFrom;
 	private Recurring firstIncompleteRecurring;
 	private UnmodifiableCalendar firstIncompleteResult;
@@ -327,7 +327,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 								GregorianCalendar on = null;
 								Status status = null;
 								List<User> who = null;
-								Map<String,String> custom = null;
+								Map<String, String> custom = null;
 								String comments = null;
 								for(
 									Node grandChild = child.getFirstChild();
@@ -446,12 +446,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
 	 */
 	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
-	public Map<String,List<Entry>> getEntriesByScheduledOnDate() throws IOException {
+	public Map<String, List<Entry>> getEntriesByScheduledOnDate() throws IOException {
 		synchronized(entriesLock) {
 			// Call getEntries always because it will refresh data when file changed
 			List<Entry> allEntries = getEntries();
 			if(unmodifiableEntriesByScheduledOn == null) {
-				Map<String,List<Entry>> entriesByScheduledOn = new LinkedHashMap<>();
+				Map<String, List<Entry>> entriesByScheduledOn = new LinkedHashMap<>();
 				for(Entry entry : allEntries) {
 					Collection<UnmodifiableCalendar> scheduledOns = entry.getScheduledOns();
 					// Must always handle the "null" key for when there are not scheduled ons
@@ -467,7 +467,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 					}
 				}
 				// Convert each element to unmodifiable
-				for(Map.Entry<String,List<Entry>> entry : entriesByScheduledOn.entrySet()) {
+				for(Map.Entry<String, List<Entry>> entry : entriesByScheduledOn.entrySet()) {
 					entry.setValue(AoCollections.optimalUnmodifiableList(entry.getValue()));
 				}
 				unmodifiableEntriesByScheduledOn = Collections.unmodifiableMap(entriesByScheduledOn);
@@ -484,12 +484,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
 	 */
 	/*
-	public Map<String,Set<String>> getProgressByScheduledOnDate() throws IOException {
+	public Map<String, Set<String>> getProgressByScheduledOnDate() throws IOException {
 		synchronized(entriesLock) {
 			// Call getEntries always because it will refresh data when file changed
 			List<Entry> allEntries = getEntries();
 			if(unmodifiableProgressByScheduledOn == null) {
-				Map<String,Set<String>> progressByScheduledOn = new LinkedHashMap<>();
+				Map<String, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
 				for(Entry entry : allEntries) {
 					if(entry.getStatus() == Status.PROGRESS) {
 						String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
@@ -499,7 +499,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 					}
 				}
 				// Convert each element to unmodifiable
-				for(Map.Entry<String,Set<String>> entry : progressByScheduledOn.entrySet()) {
+				for(Map.Entry<String, Set<String>> entry : progressByScheduledOn.entrySet()) {
 					entry.setValue(AoCollections.optimalUnmodifiableSet(entry.getValue()));
 				}
 				unmodifiableProgressByScheduledOn = Collections.unmodifiableMap(progressByScheduledOn);
@@ -573,7 +573,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	) throws IOException {
 		synchronized(entriesLock) {
 			// Call getEntriesByScheduledOnDate always because it will refresh data when file changed
-			Map<String,List<Entry>> entriesByScheduledOnDate = getEntriesByScheduledOnDate();
+			Map<String, List<Entry>> entriesByScheduledOnDate = getEntriesByScheduledOnDate();
 			if(
 				firstIncompleteResult == null
 				|| firstIncompleteFrom.getTimeInMillis() != from.getTimeInMillis()
