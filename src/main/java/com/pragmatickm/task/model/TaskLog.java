@@ -22,11 +22,11 @@
  */
 package com.pragmatickm.task.model;
 
-import com.aoindustries.collections.AoCollections;
-import com.aoindustries.lang.NullArgumentException;
-import com.aoindustries.util.CalendarUtils;
-import com.aoindustries.util.UnmodifiableCalendar;
-import com.aoindustries.util.schedule.Recurring;
+import com.aoapps.collections.AoCollections;
+import com.aoapps.hodgepodge.schedule.Recurring;
+import com.aoapps.lang.NullArgumentException;
+import com.aoapps.lang.util.CalendarUtils;
+import com.aoapps.lang.util.UnmodifiableCalendar;
 import com.semanticcms.core.model.ResourceRef;
 import com.semanticcms.core.resources.Resource;
 import com.semanticcms.core.resources.ResourceConnection;
