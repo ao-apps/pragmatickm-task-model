@@ -33,6 +33,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 	<packaging>bundle</packaging>
 
 	<properties>
+		<module.name>com.pragmatickm.task.model</module.name>
 		<javadoc.breadcrumbs><![CDATA[<a target="${javadoc.target}" href="https://pragmatickm.com/">PragmaticKM</a>
 / <a target="${javadoc.target}" href="https://pragmatickm.com/task/">Task</a>
 / <a target="${javadoc.target}" href="${project.url}">Model</a>]]></javadoc.breadcrumbs>
