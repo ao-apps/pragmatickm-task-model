@@ -37,7 +37,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2017-07-25T17:39:09-05:00"
-		dateModified="2021-06-27T16:13:41-05:00"
+		dateModified="2021-07-22T02:53:45-05:00"
 	>
 		<c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
 			<changelog:release
@@ -47,25 +47,34 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 				artifactId="@{documented.artifactId}"
 				repository="@{nexusUrl}content/repositories/snapshots/"
 				scmUrl="@{project.scm.url}"
-			>
-				<ul>
-					<li>
-						<p>
-							Now registering exception types for use with <code>Throwables.newSurrogate(…)</code> that supports creating new instances
-							of throwables in order to have caller stack trace.  When wrapped, the original throwable is the
-							cause of the new throwable.  When not wrapped, the original throwable is used directly and
-							caller stack trace is lost.
-						</p>
-						<p>
-							This is used to maintain exception types and states across thread boundaries, such as when an exception cause
-							is obtained from an <code>ExecutionException</code>.
-						</p>
-					</li>
-					<li>Minimum Java version changed from 1.8 to 11.</li>
-					<li>Now supports Java 9+ modules with included <code>module-info.class</code>.</li>
-				</ul>
-			</changelog:release>
+			/>
 		</c:if>
+
+		<changelog:release
+			projectName="@{documented.name}"
+			version="1.6.0"
+			datePublished="2021-07-22T02:53:45-05:00"
+			groupId="@{project.groupId}"
+			artifactId="@{documented.artifactId}"
+			scmUrl="@{project.scm.url}"
+		>
+			<ul>
+				<li>
+					<p>
+						Now registering exception types for use with <code>Throwables.newSurrogate(…)</code> that supports creating new instances
+						of throwables in order to have caller stack trace.  When wrapped, the original throwable is the
+						cause of the new throwable.  When not wrapped, the original throwable is used directly and
+						caller stack trace is lost.
+					</p>
+					<p>
+						This is used to maintain exception types and states across thread boundaries, such as when an exception cause
+						is obtained from an <code>ExecutionException</code>.
+					</p>
+				</li>
+				<li>Minimum Java version changed from 1.8 to 11.</li>
+				<li>Now supports Java 9+ modules with included <code>module-info.class</code>.</li>
+			</ul>
+		</changelog:release>
 
 		<changelog:release
 			projectName="@{documented.name}"
