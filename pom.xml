@@ -29,7 +29,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.pragmatickm</groupId><artifactId>pragmatickm-task-model</artifactId><version>1.6.0</version>
+	<groupId>com.pragmatickm</groupId><artifactId>pragmatickm-task-model</artifactId><version>1.6.0-POST-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<properties>
@@ -78,7 +78,7 @@ along with pragmatickm-task-model.  If not, see <http://www.gnu.org/licenses />.
 		<connection>scm:git:git://github.com/aoindustries/pragmatickm-task-model.git</connection>
 		<developerConnection>scm:git:git@github.com:aoindustries/pragmatickm-task-model.git</developerConnection>
 		<url>https://github.com/aoindustries/pragmatickm-task-model</url>
-		<tag>pragmatickm-task-model-1.6.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
