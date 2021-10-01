@@ -72,10 +72,10 @@ public class Task extends Element {
 	public Task freeze() throws IllegalStateException {
 		synchronized(lock) {
 			if(!frozen) {
-				if(assignedTo != null) assignedTo = AoCollections.optimalUnmodifiableList(assignedTo);
-				if(priorities != null) priorities = AoCollections.optimalUnmodifiableList(priorities);
-				if(doBefores != null) doBefores = AoCollections.optimalUnmodifiableSet(doBefores);
-				if(customLogs != null) customLogs = AoCollections.optimalUnmodifiableSet(customLogs);
+				assignedTo = AoCollections.optimalUnmodifiableList(assignedTo);
+				priorities = AoCollections.optimalUnmodifiableList(priorities);
+				doBefores = AoCollections.optimalUnmodifiableSet(doBefores);
+				customLogs = AoCollections.optimalUnmodifiableSet(customLogs);
 				super.freeze();
 				// At least one person must be assigned the "0 days" task.
 				{
@@ -274,7 +274,7 @@ public class Task extends Element {
 
 	/**
 	 * Gets the effective priority, which is the priority with the time best matching the given "now" time.
-	 * 
+	 *
 	 * @param  from  the date the priority is being determined from.
 	 * @param  now   the current system timestamp
 	 */
