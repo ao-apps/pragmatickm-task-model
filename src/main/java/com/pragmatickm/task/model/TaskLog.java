@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -125,7 +126,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		private final String label;
 		private final String labelDoBefore;
 		private final boolean completedSchedule;
-		
+
 		private Status(
 			String label,
 			String labelDoBefore,
@@ -230,7 +231,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		public UnmodifiableCalendar getOn() {
 			return on;
 		}
-		
+
 		public Status getStatus() {
 			return status;
 		}
@@ -284,7 +285,25 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 		return xmlFile;
 	}
 
-	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+	/**
+	 * Not thread safe, use a different instance per thread.
+	 */
+	private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactory = new ThreadLocal<DocumentBuilderFactory>() {
+		@Override
+		protected DocumentBuilderFactory initialValue() {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			try {
+				dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			} catch(ParserConfigurationException e) {
+				throw new AssertionError("All implementations are required to support the javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING feature.", e);
+			}
+			// See https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.md#java
+			// See https://rules.sonarsource.com/java/RSPEC-2755
+			dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			return dbf;
+		}
+	};
 
 	/**
 	 * <p>
@@ -315,7 +334,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 						List<Entry> newEntries = new ArrayList<>();
 						Entry lastEntry = null;
 						if(exists) {
-							DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
+							DocumentBuilder builder = documentBuilderFactory.get().newDocumentBuilder();
 							Document document;
 							{
 								try (InputStream in = conn.getInputStream()) {
@@ -436,7 +455,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 
 	/**
 	 * Iterates through a snapshot of the entries.
-	 * 
+	 *
 	 * @see  #getEntries()
 	 */
 	@Override
@@ -454,7 +473,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 * Gets a snapshot of the entries grouped by "scheduledOn" value.
 	 * Has a <code>null</code> key for any entries without a "scheduledOn" date.
 	 * The cache key is the date in YYYY-MM-DD format.
-	 * 
+	 *
 	 * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
 	 */
 	@SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
@@ -492,7 +511,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	 * Gets a snapshot of the "progress" dates grouped by "scheduledOn" value.
 	 * Has a <code>null</code> key for any entries without a "scheduledOn" date.
 	 * The cache key is the date in YYYY-MM-DD format.
-	 * 
+	 *
 	 * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
 	 */
 	/*
