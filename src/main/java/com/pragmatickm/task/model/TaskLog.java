@@ -285,22 +285,19 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	/**
 	 * Not thread safe, use a different instance per thread.
 	 */
-	private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactory = new ThreadLocal<DocumentBuilderFactory>() {
-		@Override
-		protected DocumentBuilderFactory initialValue() {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			try {
-				dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-			} catch(ParserConfigurationException e) {
-				throw new AssertionError("All implementations are required to support the javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING feature.", e);
-			}
-			// See https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.md#java
-			// See https://rules.sonarsource.com/java/RSPEC-2755
-			dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-			dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			return dbf;
+	private static final ThreadLocal<DocumentBuilderFactory> documentBuilderFactory = ThreadLocal.withInitial(() -> {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		try {
+			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+		} catch(ParserConfigurationException e) {
+			throw new AssertionError("All implementations are required to support the javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING feature.", e);
 		}
-	};
+		// See https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.md#java
+		// See https://rules.sonarsource.com/java/RSPEC-2755
+		dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		return dbf;
+	});
 
 	/**
 	 * <p>
