@@ -267,7 +267,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
 	}
 
 	private final Resource xmlFile;
-	private static class EntriesLock {}
+	private static class EntriesLock {/* Empty lock class to help heap profile */}
 	private final EntriesLock entriesLock = new EntriesLock();
 	private long entriesLastModified;
 	private List<Entry> unmodifiableEntries;
