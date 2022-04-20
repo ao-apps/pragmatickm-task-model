@@ -27,31 +27,31 @@ package com.pragmatickm.task.model;
  * Task priorities.
  */
 public enum Priority {
-	FUTURE  ("Future",   "pragmatickm-task-priority-future"),
-	LOW     ("Low",      "pragmatickm-task-priority-low"),
-	MEDIUM  ("Medium",   "pragmatickm-task-priority-medium"),
-	HIGH    ("High",     "pragmatickm-task-priority-high"),
-	CRITICAL("Critical", "pragmatickm-task-priority-critical");
+  FUTURE  ("Future",   "pragmatickm-task-priority-future"),
+  LOW     ("Low",      "pragmatickm-task-priority-low"),
+  MEDIUM  ("Medium",   "pragmatickm-task-priority-medium"),
+  HIGH    ("High",     "pragmatickm-task-priority-high"),
+  CRITICAL("Critical", "pragmatickm-task-priority-critical");
 
-	public static final Priority DEFAULT_PRIORITY = MEDIUM;
-	public static final Priority MAX_PRIORITY = CRITICAL;
+  public static final Priority DEFAULT_PRIORITY = MEDIUM;
+  public static final Priority MAX_PRIORITY = CRITICAL;
 
-	private final String display;
-	private final String cssClass;
+  private final String display;
+  private final String cssClass;
 
-	private Priority(String display, String cssClass) {
-		this.display = display;
-		this.cssClass = cssClass;
-	}
+  private Priority(String display, String cssClass) {
+    this.display = display;
+    this.cssClass = cssClass;
+  }
 
-	@Override
-	public String toString() {
-		return display;
-	}
+  @Override
+  public String toString() {
+    return display;
+  }
 
-	// TODO: This CSS Class should go in pragmatickm-task-servlet
-	// TODO: See StatusResult.java
-	public String getCssClass() {
-		return cssClass;
-	}
+  // TODO: This CSS Class should go in pragmatickm-task-servlet
+  // TODO: See StatusResult.java
+  public String getCssClass() {
+    return cssClass;
+  }
 }

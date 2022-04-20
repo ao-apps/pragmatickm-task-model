@@ -25,30 +25,30 @@ package com.pragmatickm.task.model;
 
 public enum User {
 
-	Unassigned(false),
-	Amelia(true),
-	Brian(true),
-	Dan(true),
-	Dennis(true),
-	Kaori(true),
-	Seth(true),
-	Tabatha(true),
-	Tyler(true);
+  Unassigned(false),
+  Amelia(true),
+  Brian(true),
+  Dan(true),
+  Dennis(true),
+  Kaori(true),
+  Seth(true),
+  Tabatha(true),
+  Tyler(true);
 
-	private final boolean isPerson;
-	
-	private User(boolean isPerson) {
-		this.isPerson = isPerson;
-	}
+  private final boolean isPerson;
 
-	public boolean isPerson() {
-		return isPerson;
-	}
+  private User(boolean isPerson) {
+    this.isPerson = isPerson;
+  }
 
-	/**
-	 * JavaBeans compatibility.
-	 */
-	public String getName() {
-		return name();
-	}
+  public boolean isPerson() {
+    return isPerson;
+  }
+
+  /**
+   * JavaBeans compatibility.
+   */
+  public String getName() {
+    return name();
+  }
 }
