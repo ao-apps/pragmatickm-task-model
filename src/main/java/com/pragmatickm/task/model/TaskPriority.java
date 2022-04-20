@@ -34,47 +34,53 @@ import java.util.List;
  */
 public class TaskPriority {
 
-	/**
-	 * Some commonly used constant assignments.
-	 */
-	public static final TaskPriority DEFAULT_TASK_PRIORITY = new TaskPriority(Priority.DEFAULT_PRIORITY, DayDuration.ZERO_DAYS);
+  /**
+   * Some commonly used constant assignments.
+   */
+  public static final TaskPriority DEFAULT_TASK_PRIORITY = new TaskPriority(Priority.DEFAULT_PRIORITY, DayDuration.ZERO_DAYS);
 
-	/**
-	 * An unmodifiable list with the default task priority.
-	 */
-	public static final List<TaskPriority> DEFAULT_TASK_PRIORITY_LIST = Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
+  /**
+   * An unmodifiable list with the default task priority.
+   */
+  public static final List<TaskPriority> DEFAULT_TASK_PRIORITY_LIST = Collections.singletonList(TaskPriority.DEFAULT_TASK_PRIORITY);
 
-	public static TaskPriority getInstance(Priority priority, DayDuration after) {
-		// Shortcuts for constants
-		if(priority == Priority.DEFAULT_PRIORITY && after == DayDuration.ZERO_DAYS) return DEFAULT_TASK_PRIORITY;
-		// Create new object
-		return new TaskPriority(priority, after);
-	}
+  public static TaskPriority getInstance(Priority priority, DayDuration after) {
+    // Shortcuts for constants
+    if (priority == Priority.DEFAULT_PRIORITY && after == DayDuration.ZERO_DAYS) {
+      return DEFAULT_TASK_PRIORITY;
+    }
+    // Create new object
+    return new TaskPriority(priority, after);
+  }
 
-	private final Priority priority;
-	private final DayDuration after;
+  private final Priority priority;
+  private final DayDuration after;
 
-	private TaskPriority(Priority priority, DayDuration after) {
-		this.priority = priority;
-		if(after.getCount() < 0) throw new IllegalArgumentException("after.count < 0: " + after.getCount());
-		this.after = after;
-	}
+  private TaskPriority(Priority priority, DayDuration after) {
+    this.priority = priority;
+    if (after.getCount() < 0) {
+      throw new IllegalArgumentException("after.count < 0: " + after.getCount());
+    }
+    this.after = after;
+  }
 
-	@Override
-	public String toString() {
-		if(after.getCount() == 0) return priority.toString();
-		StringBuilder sb = new StringBuilder();
-		sb.append(priority.toString()).append(" (after ");
-		after.toString(sb);
-		sb.append(')');
-		return sb.toString();
-	}
+  @Override
+  public String toString() {
+    if (after.getCount() == 0) {
+      return priority.toString();
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(priority.toString()).append(" (after ");
+    after.toString(sb);
+    sb.append(')');
+    return sb.toString();
+  }
 
-	public Priority getPriority() {
-		return priority;
-	}
+  public Priority getPriority() {
+    return priority;
+  }
 
-	public DayDuration getAfter() {
-		return after;
-	}
+  public DayDuration getAfter() {
+    return after;
+  }
 }

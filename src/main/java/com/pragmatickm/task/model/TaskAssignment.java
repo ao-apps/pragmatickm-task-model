@@ -31,42 +31,48 @@ import com.aoapps.hodgepodge.schedule.DayDuration;
  */
 public class TaskAssignment {
 
-	/**
-	 * Some commonly used constant assignments.
-	 */
-	public static final TaskAssignment UNASSIGNED = new TaskAssignment(User.Unassigned, DayDuration.ZERO_DAYS);
+  /**
+   * Some commonly used constant assignments.
+   */
+  public static final TaskAssignment UNASSIGNED = new TaskAssignment(User.Unassigned, DayDuration.ZERO_DAYS);
 
-	public static TaskAssignment getInstance(User who, DayDuration after) {
-		// Shortcuts for constants
-		if(who == User.Unassigned && after == DayDuration.ZERO_DAYS) return UNASSIGNED;
-		// Create new object
-		return new TaskAssignment(who, after);
-	}
+  public static TaskAssignment getInstance(User who, DayDuration after) {
+    // Shortcuts for constants
+    if (who == User.Unassigned && after == DayDuration.ZERO_DAYS) {
+      return UNASSIGNED;
+    }
+    // Create new object
+    return new TaskAssignment(who, after);
+  }
 
-	private final User who;
-	private final DayDuration after;
+  private final User who;
+  private final DayDuration after;
 
-	private TaskAssignment(User who, DayDuration after) {
-		this.who = who;
-		if(after.getCount() < 0) throw new IllegalArgumentException("after.count < 0: " + after.getCount());
-		this.after = after;
-	}
+  private TaskAssignment(User who, DayDuration after) {
+    this.who = who;
+    if (after.getCount() < 0) {
+      throw new IllegalArgumentException("after.count < 0: " + after.getCount());
+    }
+    this.after = after;
+  }
 
-	@Override
-	public String toString() {
-		if(after.getCount() == 0) return who.toString();
-		StringBuilder sb = new StringBuilder();
-		sb.append(who.toString()).append(" (after ");
-		after.toString(sb);
-		sb.append(')');
-		return sb.toString();
-	}
+  @Override
+  public String toString() {
+    if (after.getCount() == 0) {
+      return who.toString();
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(who.toString()).append(" (after ");
+    after.toString(sb);
+    sb.append(')');
+    return sb.toString();
+  }
 
-	public User getWho() {
-		return who;
-	}
+  public User getWho() {
+    return who;
+  }
 
-	public DayDuration getAfter() {
-		return after;
-	}
+  public DayDuration getAfter() {
+    return after;
+  }
 }
