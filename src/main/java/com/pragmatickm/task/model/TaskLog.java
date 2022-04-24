@@ -70,15 +70,15 @@ import org.xml.sax.SAXException;
 public class TaskLog implements Iterable<TaskLog.Entry> {
 
   private static final String
-    ROOT_NODE             = "tasklog",
-    ENTRY_NODE            = "entry",
-    SCHEDULED_ON_NODE     = "scheduledOn",
-    ON_NODE               = "on",
-    STATUS_NODE           = "status",
-    WHO_NODE              = "who",
-    CUSTOM_NODE           = "custom",
-    CUSTOM_NAME_ATTRIBUTE = "name",
-    COMMENTS_NODE         = "comments"
+      ROOT_NODE             = "tasklog",
+      ENTRY_NODE            = "entry",
+      SCHEDULED_ON_NODE     = "scheduledOn",
+      ON_NODE               = "on",
+      STATUS_NODE           = "status",
+      WHO_NODE              = "who",
+      CUSTOM_NODE           = "custom",
+      CUSTOM_NAME_ATTRIBUTE = "name",
+      COMMENTS_NODE         = "comments"
   ;
 
   public enum Status {
@@ -89,30 +89,30 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
       "Progress",
       "Progress waiting for \"Do Before\"",
       false
-    ),
+  ),
     /**
      * The task has been completed.
      */
     COMPLETED(
-      "Completed",
-      "Completed", // after \"Do Before\"",
-      true
+        "Completed",
+        "Completed", // after \"Do Before\"",
+        true
     ),
     /**
      * The task has been completed.
      */
     NOTHING_TO_DO(
-      "Nothing To Do",
-      "Nothing To Do after \"Do Before\"",
-      true
+        "Nothing To Do",
+        "Nothing To Do after \"Do Before\"",
+        true
     ),
     /**
      * The task was missed and will not be done.
      */
     MISSED(
-      "Missed",
-      "Missed after \"Do Before\"",
-      true
+        "Missed",
+        "Missed after \"Do Before\"",
+        true
     );
 
     public static Status getStatusByLabel(String label) {
@@ -137,9 +137,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     private final boolean completedSchedule;
 
     private Status(
-      String label,
-      String labelDoBefore,
-      boolean completedSchedule
+        String label,
+        String labelDoBefore,
+        boolean completedSchedule
     ) {
       this.label = label;
       this.labelDoBefore = labelDoBefore;
@@ -172,8 +172,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   }
 
   private static final Comparator<Calendar> calendarInMilliOrderComparator = (cal1, cal2) -> Long.compare(
-    cal1.getTimeInMillis(),
-    cal2.getTimeInMillis()
+      cal1.getTimeInMillis(),
+      cal2.getTimeInMillis()
   );
 
   private static SortedSet<UnmodifiableCalendar> makeUnmodifiable(Set<? extends Calendar> calendars) {
@@ -195,12 +195,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     private final String comments;
 
     public Entry(
-      Set<? extends Calendar> scheduledOns,
-      Calendar on,
-      Status status,
-      List<User> who,
-      Map<String, String> custom,
-      String comments
+        Set<? extends Calendar> scheduledOns,
+        Calendar on,
+        Status status,
+        List<User> who,
+        Map<String, String> custom,
+        String comments
     ) {
       if (scheduledOns == null) {
         this.scheduledOns = AoCollections.emptySortedSet();
@@ -208,7 +208,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
         this.scheduledOns = makeUnmodifiable(scheduledOns);
       }
       this.on = UnmodifiableCalendar.wrap(
-        NullArgumentException.checkNotNull(on, "on")
+          NullArgumentException.checkNotNull(on, "on")
       );
       this.status = status;
       if (who == null) {
@@ -283,7 +283,10 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   }
 
   private final Resource xmlFile;
-  private static class EntriesLock {/* Empty lock class to help heap profile */}
+
+  private static class EntriesLock {
+    // Empty lock class to help heap profile
+  }
   private final EntriesLock entriesLock = new EntriesLock();
   private long entriesLastModified;
   private List<Entry> unmodifiableEntries;
@@ -339,10 +342,10 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
           // TODO: Handle unknown last modified of 0 similar to how properties are time-cached
           //       These two different things might share some code.
           if (
-            // First access
-            unmodifiableEntries == null
-            // File updated externally
-            || entriesLastModified != fileLastModified
+              // First access
+              unmodifiableEntries == null
+                  // File updated externally
+                  || entriesLastModified != fileLastModified
           ) {
             List<Entry> newEntries = new ArrayList<>();
             Entry lastEntry = null;
@@ -382,7 +385,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                     grandChild = grandChild.getNextSibling()
                   ) {
                     if (grandChild instanceof Element) {
-                      Element elem = (Element)grandChild;
+                      Element elem = (Element) grandChild;
                       String content = elem.getTextContent();
                       String nodeName = elem.getNodeName();
                       // Java 1.8: switch (nodeName) {
@@ -440,12 +443,12 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                   }
 
                   Entry newEntry = new Entry(
-                    scheduledOns,
-                    on,
-                    status,
-                    who,
-                    custom,
-                    comments
+                      scheduledOns,
+                      on,
+                      status,
+                      who,
+                      custom,
+                      comments
                   );
                   // The entries must be in order by "on" value
                   if (lastEntry != null && newEntry.on.before(lastEntry.on)) {
@@ -619,7 +622,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   public Entry getMostRecentEntry(Calendar scheduledOn) throws IOException {
     List<Entry> entries = getEntries(scheduledOn);
     int size = entries.size();
-    return size == 0 ? null : entries.get(size-1);
+    return size == 0 ? null : entries.get(size - 1);
   }
 
   /**
@@ -627,25 +630,25 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
    */
   @SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
   public UnmodifiableCalendar getFirstIncompleteScheduledOn(
-    Calendar from,
-    Recurring recurring
+      Calendar from,
+      Recurring recurring
   ) throws IOException {
     synchronized (entriesLock) {
       // Call getEntriesByScheduledOnDate always because it will refresh data when file changed
       Map<String, List<Entry>> entriesByScheduledOnDate = getEntriesByScheduledOnDate();
       if (
-        firstIncompleteResult == null
-        || firstIncompleteFrom.getTimeInMillis() != from.getTimeInMillis()
-        || firstIncompleteRecurring == null
-        || !firstIncompleteRecurring.equals(recurring)
+          firstIncompleteResult == null
+              || firstIncompleteFrom.getTimeInMillis() != from.getTimeInMillis()
+              || firstIncompleteRecurring == null
+              || !firstIncompleteRecurring.equals(recurring)
       ) {
         Iterator<Calendar> scheduledOnIter = recurring.getScheduleIterator(from);
         while (true) {
           String date = CalendarUtils.formatDate(scheduledOnIter.next());
           List<Entry> dateEntries = entriesByScheduledOnDate.get(date);
           if (
-            dateEntries == null
-            || !dateEntries.get(dateEntries.size()-1).getStatus().isCompletedSchedule()
+              dateEntries == null
+                  || !dateEntries.get(dateEntries.size() - 1).getStatus().isCompletedSchedule()
           ) {
             // Store in cache
             firstIncompleteFrom = UnmodifiableCalendar.wrap(from);
