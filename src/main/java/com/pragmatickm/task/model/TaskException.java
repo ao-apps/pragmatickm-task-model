@@ -43,7 +43,7 @@ public class TaskException extends Exception {
 
   static {
     Throwables.registerSurrogateFactory(TaskException.class, (template, cause) ->
-      new TaskException(template.getMessage(), cause)
+        new TaskException(template.getMessage(), cause)
     );
   }
 }
