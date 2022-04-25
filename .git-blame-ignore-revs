@@ -13,3 +13,6 @@ e43a222d125097a9a6b59fd35fea9e7531cf4651
 
 # Created AnyContent interface and AnyDocument base implementation
 0bb43c9c93f0fe35c4c57889d0efebc6aec8012a
+
+# Performed automatic source code clean-up with rewrite-maven-plugin
+9d45ad9778303d8f1cf8e8bc042f96dc2344266f
