@@ -66,17 +66,15 @@ import org.xml.sax.SAXException;
  */
 public class TaskLog implements Iterable<TaskLog.Entry> {
 
-  private static final String
-      ROOT_NODE             = "tasklog",
-      ENTRY_NODE            = "entry",
-      SCHEDULED_ON_NODE     = "scheduledOn",
-      ON_NODE               = "on",
-      STATUS_NODE           = "status",
-      WHO_NODE              = "who",
-      CUSTOM_NODE           = "custom",
-      CUSTOM_NAME_ATTRIBUTE = "name",
-      COMMENTS_NODE         = "comments"
-  ;
+  private static final String ROOT_NODE             = "tasklog";
+  private static final String ENTRY_NODE            = "entry";
+  private static final String SCHEDULED_ON_NODE     = "scheduledOn";
+  private static final String ON_NODE               = "on";
+  private static final String STATUS_NODE           = "status";
+  private static final String WHO_NODE              = "who";
+  private static final String CUSTOM_NODE           = "custom";
+  private static final String CUSTOM_NAME_ATTRIBUTE = "name";
+  private static final String COMMENTS_NODE         = "comments";
 
   public enum Status {
     /**
@@ -284,6 +282,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   private static class EntriesLock {
     // Empty lock class to help heap profile
   }
+
   private final EntriesLock entriesLock = new EntriesLock();
   private long entriesLastModified;
   private List<Entry> unmodifiableEntries;
@@ -352,10 +351,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
             if (!ROOT_NODE.equals(root.getNodeName())) {
               throw new ParseException("Unexpected root element \"" + root.getNodeName() + "\" in " + resourceFile, 0);
             }
-            for (
-              Node child = root.getFirstChild();
-              child != null;
-              child = child.getNextSibling()
+            for (Node child = root.getFirstChild();
+                child != null;
+                child = child.getNextSibling()
             ) {
               if (child instanceof Element) {
                 if (!ENTRY_NODE.equals(child.getNodeName())) {
@@ -368,10 +366,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                 List<User> who = null;
                 Map<String, String> custom = null;
                 String comments = null;
-                for (
-                  Node grandChild = child.getFirstChild();
-                  grandChild != null;
-                  grandChild = grandChild.getNextSibling()
+                for (Node grandChild = child.getFirstChild();
+                    grandChild != null;
+                    grandChild = grandChild.getNextSibling()
                 ) {
                   if (grandChild instanceof Element) {
                     Element elem = (Element) grandChild;
@@ -386,7 +383,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                       if (lastScheduledOn != null) {
                         // Must be in order
                         if (scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
-                          throw new ParseException("Out of order " + SCHEDULED_ON_NODE + ": " + CalendarUtils.formatDate(scheduledOn) + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + resourceFile, 0);
+                          throw new ParseException("Out of order " + SCHEDULED_ON_NODE + ": " + CalendarUtils.formatDate(scheduledOn)
+                              + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + resourceFile, 0);
                         }
                       }
                       lastScheduledOn = scheduledOn;
@@ -441,7 +439,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                 );
                 // The entries must be in order by "on" value
                 if (lastEntry != null && newEntry.on.before(lastEntry.on)) {
-                  throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on) + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + resourceFile, 0);
+                  throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on)
+                      + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + resourceFile, 0);
                 }
                 lastEntry = newEntry;
                 newEntries.add(newEntry);
@@ -521,39 +520,38 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     }
   }
 
-  /**
-   * Gets a snapshot of the "progress" dates grouped by "scheduledOn" value.
-   * Has a <code>null</code> key for any entries without a "scheduledOn" date.
-   * The cache key is the date in YYYY-MM-DD format.
-   *
-   * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
-   */
-  /*
-  public Map<String, Set<String>> getProgressByScheduledOnDate() throws IOException {
-    synchronized (entriesLock) {
-      // Call getEntries always because it will refresh data when file changed
-      List<Entry> allEntries = getEntries();
-      if (unmodifiableProgressByScheduledOn == null) {
-        Map<String, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
-        for (Entry entry : allEntries) {
-          if (entry.getStatus() == Status.PROGRESS) {
-            String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
-            Set<String> progressScheduledOn = progressByScheduledOn.get(entryScheduledOnString);
-            if (progressScheduledOn == null) {
-              progressByScheduledOn.put(entryScheduledOnString, progressScheduledOn=new HashSet<>());
-            }
-            progressScheduledOn.add(CalendarUtils.formatDate(entry.on));
-          }
-        }
-        // Convert each element to unmodifiable
-        for (Map.Entry<String, Set<String>> entry : progressByScheduledOn.entrySet()) {
-          entry.setValue(AoCollections.optimalUnmodifiableSet(entry.getValue()));
-        }
-        unmodifiableProgressByScheduledOn = Collections.unmodifiableMap(progressByScheduledOn);
-      }
-      return unmodifiableProgressByScheduledOn;
-    }
-  }*/
+  ///**
+  // * Gets a snapshot of the "progress" dates grouped by "scheduledOn" value.
+  // * Has a <code>null</code> key for any entries without a "scheduledOn" date.
+  // * The cache key is the date in YYYY-MM-DD format.
+  // *
+  // * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
+  // */
+  //public Map<String, Set<String>> getProgressByScheduledOnDate() throws IOException {
+  //  synchronized (entriesLock) {
+  //    // Call getEntries always because it will refresh data when file changed
+  //    List<Entry> allEntries = getEntries();
+  //    if (unmodifiableProgressByScheduledOn == null) {
+  //      Map<String, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
+  //      for (Entry entry : allEntries) {
+  //        if (entry.getStatus() == Status.PROGRESS) {
+  //          String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
+  //          Set<String> progressScheduledOn = progressByScheduledOn.get(entryScheduledOnString);
+  //          if (progressScheduledOn == null) {
+  //            progressByScheduledOn.put(entryScheduledOnString, progressScheduledOn=new HashSet<>());
+  //          }
+  //          progressScheduledOn.add(CalendarUtils.formatDate(entry.on));
+  //        }
+  //      }
+  //      // Convert each element to unmodifiable
+  //      for (Map.Entry<String, Set<String>> entry : progressByScheduledOn.entrySet()) {
+  //        entry.setValue(AoCollections.optimalUnmodifiableSet(entry.getValue()));
+  //      }
+  //      unmodifiableProgressByScheduledOn = Collections.unmodifiableMap(progressByScheduledOn);
+  //    }
+  //    return unmodifiableProgressByScheduledOn;
+  //  }
+  //}
 
   /**
    * Gets the entries grouped by "scheduledOn" value or empty list if there are none.

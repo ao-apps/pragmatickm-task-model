@@ -23,11 +23,12 @@
 
 package com.pragmatickm.task.model;
 
+import static com.aoapps.lang.Strings.nullIfEmpty;
+
 import com.aoapps.collections.AoCollections;
 import com.aoapps.hodgepodge.schedule.DayDuration;
 import com.aoapps.hodgepodge.schedule.Recurring;
 import com.aoapps.lang.NullArgumentException;
-import static com.aoapps.lang.Strings.nullIfEmpty;
 import com.aoapps.lang.util.UnmodifiableCalendar;
 import com.semanticcms.core.model.Element;
 import com.semanticcms.core.model.ElementRef;
@@ -59,6 +60,8 @@ public class Task extends Element {
   private volatile PageRef xmlFile;
 
   /**
+   * {@inheritDoc}
+   *
    * @throws IllegalStateException if the task has been setup in an inconsistent state
    */
   @Override
@@ -70,42 +73,42 @@ public class Task extends Element {
         doBefores = AoCollections.optimalUnmodifiableSet(doBefores);
         customLogs = AoCollections.optimalUnmodifiableSet(customLogs);
         super.freeze();
-        // At least one person must be assigned the "0 days" task.
-        {
-          boolean found = false;
-          if (assignedTo == null) {
-            found = true;
-          } else {
-            for (TaskAssignment assignment : assignedTo) {
-              if (assignment.getAfter().getCount() == 0) {
-                found = true;
-                break;
-              }
-            }
-          }
-          if (!found) {
-            throw new IllegalStateException("At least one person must be assigned the \"0 days\" task");
-          }
-        }
-        // One and only one priority may have the "0 days" priority.
-        {
-          boolean found = false;
-          if (priorities == null) {
-            found = true;
-          } else {
-            for (TaskPriority priority : priorities) {
-              if (priority.getAfter().getCount() == 0) {
-                if (found) {
-                  throw new IllegalStateException("Only one priority may be assigned the \"0 days\" task");
+          // At least one person must be assigned the "0 days" task.
+          {
+            boolean found = false;
+            if (assignedTo == null) {
+              found = true;
+            } else {
+              for (TaskAssignment assignment : assignedTo) {
+                if (assignment.getAfter().getCount() == 0) {
+                  found = true;
+                  break;
                 }
-                found = true;
               }
             }
+            if (!found) {
+              throw new IllegalStateException("At least one person must be assigned the \"0 days\" task");
+            }
           }
-          if (!found) {
-            throw new IllegalStateException("At least priority must be assigned the \"0 days\" task");
+          // One and only one priority may have the "0 days" priority.
+          {
+            boolean found = false;
+            if (priorities == null) {
+              found = true;
+            } else {
+              for (TaskPriority priority : priorities) {
+                if (priority.getAfter().getCount() == 0) {
+                  if (found) {
+                    throw new IllegalStateException("Only one priority may be assigned the \"0 days\" task");
+                  }
+                  found = true;
+                }
+              }
+            }
+            if (!found) {
+              throw new IllegalStateException("At least priority must be assigned the \"0 days\" task");
+            }
           }
-        }
       }
     }
     return this;
@@ -256,8 +259,9 @@ public class Task extends Element {
 
   /**
    * Gets the priorities without defensive copy.
-   *
+   * <p>
    * Must hold lock already.
+   * </p>
    */
   @SuppressWarnings("ReturnOfCollectionOrArrayField") // No defensive copy
   private List<TaskPriority> fastGetPriorities() {
