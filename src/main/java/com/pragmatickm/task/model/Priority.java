@@ -27,11 +27,26 @@ package com.pragmatickm.task.model;
  * Task priorities.
  */
 public enum Priority {
-  FUTURE  ("Future",   "pragmatickm-task-priority-future"),
-  LOW     ("Low",      "pragmatickm-task-priority-low"),
-  MEDIUM  ("Medium",   "pragmatickm-task-priority-medium"),
-  HIGH    ("High",     "pragmatickm-task-priority-high"),
-  CRITICAL("Critical", "pragmatickm-task-priority-critical");
+  FUTURE(
+      "Future",
+      "pragmatickm-task-priority-future"
+  ),
+  LOW(
+      "Low",
+      "pragmatickm-task-priority-low"
+  ),
+  MEDIUM(
+      "Medium",
+      "pragmatickm-task-priority-medium"
+  ),
+  HIGH(
+      "High",
+      "pragmatickm-task-priority-high"
+  ),
+  CRITICAL(
+      "Critical",
+      "pragmatickm-task-priority-critical"
+  );
 
   public static final Priority DEFAULT_PRIORITY = MEDIUM;
   public static final Priority MAX_PRIORITY = CRITICAL;
