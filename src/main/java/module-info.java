@@ -31,4 +31,4 @@ module com.pragmatickm.task.model {
   requires com.semanticcms.core.resources; // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-resources</artifactId>
   // Java SE
   requires java.xml;
-} // TODO: Avoiding rewrite-maven-plugin-4.22.2 truncation
+}
