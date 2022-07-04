@@ -48,7 +48,7 @@ along with pragmatickm-task-model.  If not, see <https://www.gnu.org/licenses/>.
     <commons-lang3.version>3.12.0</commons-lang3.version>
   </properties>
 
-  <name>PragmaticKM Task Model²</name>
+  <name>PragmaticKM Task Model</name>
   <url>https://pragmatickm.com/task/model/</url>
   <description>Tasks nested within SemanticCMS pages and elements.</description>
   <inceptionYear>2013</inceptionYear>

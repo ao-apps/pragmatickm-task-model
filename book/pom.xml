@@ -36,15 +36,15 @@ along with pragmatickm-task-model.  If not, see <https://www.gnu.org/licenses/>.
     <module.name>com.pragmatickm.task.model.book</module.name>
     <!-- These values are copied from the project being documented -->
     <documented.artifactId>pragmatickm-task-model</documented.artifactId>
-    <documented.name>PragmaticKM Task Model²</documented.name>
+    <documented.name>PragmaticKM Task Model</documented.name>
     <documented.description>Tasks nested within SemanticCMS pages and elements.</documented.description>
 
     <description.html><![CDATA[Documentation for <a target="${javadoc.target}" href="${project.url}">${documented.name}</a> in <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
   </properties>
 
-  <name>PragmaticKM Task Model² Book</name>
+  <name>PragmaticKM Task Model Book</name>
   <url>https://pragmatickm.com/task/model/</url>
-  <description>Documentation for PragmaticKM Task Model² in SemanticCMS format.</description>
+  <description>Documentation for PragmaticKM Task Model in SemanticCMS format.</description>
   <inceptionYear>2013</inceptionYear>
 
   <licenses>
