@@ -39,10 +39,6 @@ along with pragmatickm-task-model.  If not, see <https://www.gnu.org/licenses/>.
 / <a target="${javadoc.target}" href="https://pragmatickm.com/task/">Task</a>
 / <a target="${javadoc.target}" href="${project.url}">Model</a>]]></javadoc.breadcrumbs>
     <description.html><![CDATA[Tasks nested within <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> pages and elements.]]></description.html>
-    <!-- SonarQube -->
-    <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
-    <sonar.organization>ao-apps</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <!-- TODO: Implement tests -->
     <sonar.coverage.exclusions>**.*</sonar.coverage.exclusions>
     <!-- Dependencies -->
