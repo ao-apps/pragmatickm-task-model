@@ -31,6 +31,7 @@ def upstreamProjects = [
   '../../oss/collections', // <groupId>com.aoapps</groupId><artifactId>ao-collections</artifactId>
   '../../oss/hodgepodge', // <groupId>com.aoapps</groupId><artifactId>ao-hodgepodge</artifactId>
   '../../oss/lang', // <groupId>com.aoapps</groupId><artifactId>ao-lang</artifactId>
+  '../../oss/net-types', // <groupId>com.aoapps</groupId><artifactId>ao-net-types</artifactId>
   // No Jenkins: <groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId>
   '../../semanticcms/core/model', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-model</artifactId>
   '../../semanticcms/core/resources', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-resources</artifactId>
