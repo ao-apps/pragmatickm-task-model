@@ -30,7 +30,7 @@ along with pragmatickm-task-model.  If not, see <https://www.gnu.org/licenses/>.
   </parent>
 
   <groupId>com.pragmatickm</groupId><artifactId>pragmatickm-task-model</artifactId><version>1.6.2-POST-SNAPSHOT</version>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <properties>
     <module.name>com.pragmatickm.task.model</module.name>
