@@ -41,6 +41,9 @@ along with pragmatickm-task-model.  If not, see <https://www.gnu.org/licenses/>.
     <documented.artifactId>pragmatickm-task-model</documented.artifactId>
     <documented.name>PragmaticKM Task Model</documented.name>
     <documented.description>Tasks nested within SemanticCMS pages and elements.</documented.description>
+    <javadoc.breadcrumbs><![CDATA[<a target="${javadoc.target}" href="https://pragmatickm.com/">PragmaticKM</a>
+/ <a target="${javadoc.target}" href="https://pragmatickm.com/task/">Task</a>
+/ <a target="${javadoc.target}" href="${project.url}">Model</a>]]></javadoc.breadcrumbs>
 
     <description.html><![CDATA[Documentation for <a target="${javadoc.target}" href="${project.url}">${documented.name}</a> in <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
   </properties>
