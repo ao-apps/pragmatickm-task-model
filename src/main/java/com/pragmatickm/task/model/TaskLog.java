@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -321,14 +321,11 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   });
 
   /**
-   * <p>
    * Gets the set of all entries.  This is a snapshot view and will not change
    * even when the log has been updated.  To get a new snapshot, call this method
    * again.
-   * </p>
-   * <p>
-   * Entries are in order by "on" time.
-   * </p>
+   *
+   * <p>Entries are in order by "on" time.</p>
    */
   @SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
   public List<Entry> getEntries() throws IOException {
