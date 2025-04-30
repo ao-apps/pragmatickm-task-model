@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -81,42 +81,42 @@ public class Task extends Element {
         doBefores = AoCollections.optimalUnmodifiableSet(doBefores);
         customLogs = AoCollections.optimalUnmodifiableSet(customLogs);
         super.freeze();
-          // At least one person must be assigned the "0 days" task.
-          {
-            boolean found = false;
-            if (assignedTo == null) {
-              found = true;
-            } else {
-              for (TaskAssignment assignment : assignedTo) {
-                if (assignment.getAfter().getCount() == 0) {
-                  found = true;
-                  break;
-                }
+        // At least one person must be assigned the "0 days" task.
+        {
+          boolean found = false;
+          if (assignedTo == null) {
+            found = true;
+          } else {
+            for (TaskAssignment assignment : assignedTo) {
+              if (assignment.getAfter().getCount() == 0) {
+                found = true;
+                break;
               }
             }
-            if (!found) {
-              throw new IllegalStateException("At least one person must be assigned the \"0 days\" task");
-            }
           }
-          // One and only one priority may have the "0 days" priority.
-          {
-            boolean found = false;
-            if (priorities == null) {
-              found = true;
-            } else {
-              for (TaskPriority priority : priorities) {
-                if (priority.getAfter().getCount() == 0) {
-                  if (found) {
-                    throw new IllegalStateException("Only one priority may be assigned the \"0 days\" task");
-                  }
-                  found = true;
+          if (!found) {
+            throw new IllegalStateException("At least one person must be assigned the \"0 days\" task");
+          }
+        }
+        // One and only one priority may have the "0 days" priority.
+        {
+          boolean found = false;
+          if (priorities == null) {
+            found = true;
+          } else {
+            for (TaskPriority priority : priorities) {
+              if (priority.getAfter().getCount() == 0) {
+                if (found) {
+                  throw new IllegalStateException("Only one priority may be assigned the \"0 days\" task");
                 }
+                found = true;
               }
             }
-            if (!found) {
-              throw new IllegalStateException("At least priority must be assigned the \"0 days\" task");
-            }
           }
+          if (!found) {
+            throw new IllegalStateException("At least priority must be assigned the \"0 days\" task");
+          }
+        }
       }
     }
     return this;

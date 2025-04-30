@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -348,11 +348,11 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
             if (exists) {
               DocumentBuilder builder = documentBuilderFactory.get().newDocumentBuilder();
               Document document;
-                {
-                  try (InputStream in = conn.getInputStream()) {
-                    document = builder.parse(in);
-                  }
+              {
+                try (InputStream in = conn.getInputStream()) {
+                  document = builder.parse(in);
                 }
+              }
               // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
               Element root = document.getDocumentElement();
               root.normalize();
