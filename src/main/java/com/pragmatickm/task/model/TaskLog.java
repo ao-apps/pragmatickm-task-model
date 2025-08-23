@@ -287,7 +287,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   private long entriesLastModified;
   private List<Entry> unmodifiableEntries;
   private Map<String, List<Entry>> unmodifiableEntriesByScheduledOn;
-  //private Map<String, Set<String>> unmodifiableProgressByScheduledOn;
+  // private Map<String, Set<String>> unmodifiableProgressByScheduledOn;
   private UnmodifiableCalendar firstIncompleteFrom;
   private Recurring firstIncompleteRecurring;
   private UnmodifiableCalendar firstIncompleteResult;
@@ -447,7 +447,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
           unmodifiableEntries = Collections.unmodifiableList(newEntries);
           // Clear-out any cached values based on the old entries
           unmodifiableEntriesByScheduledOn = null;
-          //unmodifiableProgressByScheduledOn = null;
+          // unmodifiableProgressByScheduledOn = null;
           firstIncompleteFrom = null;
           firstIncompleteRecurring = null;
           firstIncompleteResult = null;
@@ -517,38 +517,38 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     }
   }
 
-  ///**
-  // * Gets a snapshot of the "progress" dates grouped by "scheduledOn" value.
-  // * Has a <code>null</code> key for any entries without a "scheduledOn" date.
-  // * The cache key is the date in YYYY-MM-DD format.
-  // *
-  // * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
-  // */
-  //public Map<String, Set<String>> getProgressByScheduledOnDate() throws IOException {
-  //  synchronized (entriesLock) {
-  //    // Call getEntries always because it will refresh data when file changed
-  //    List<Entry> allEntries = getEntries();
-  //    if (unmodifiableProgressByScheduledOn == null) {
-  //      Map<String, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
-  //      for (Entry entry : allEntries) {
-  //        if (entry.getStatus() == Status.PROGRESS) {
-  //          String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
-  //          Set<String> progressScheduledOn = progressByScheduledOn.get(entryScheduledOnString);
-  //          if (progressScheduledOn == null) {
-  //            progressByScheduledOn.put(entryScheduledOnString, progressScheduledOn=new HashSet<>());
-  //          }
-  //          progressScheduledOn.add(CalendarUtils.formatDate(entry.on));
-  //        }
-  //      }
-  //      // Convert each element to unmodifiable
-  //      for (Map.Entry<String, Set<String>> entry : progressByScheduledOn.entrySet()) {
-  //        entry.setValue(AoCollections.optimalUnmodifiableSet(entry.getValue()));
-  //      }
-  //      unmodifiableProgressByScheduledOn = Collections.unmodifiableMap(progressByScheduledOn);
-  //    }
-  //    return unmodifiableProgressByScheduledOn;
-  //  }
-  //}
+  // /**
+  //  * Gets a snapshot of the "progress" dates grouped by "scheduledOn" value.
+  //  * Has a <code>null</code> key for any entries without a "scheduledOn" date.
+  //  * The cache key is the date in YYYY-MM-DD format.
+  //  *
+  //  * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
+  //  */
+  // public Map<String, Set<String>> getProgressByScheduledOnDate() throws IOException {
+  //   synchronized (entriesLock) {
+  //     // Call getEntries always because it will refresh data when file changed
+  //     List<Entry> allEntries = getEntries();
+  //     if (unmodifiableProgressByScheduledOn == null) {
+  //       Map<String, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
+  //       for (Entry entry : allEntries) {
+  //         if (entry.getStatus() == Status.PROGRESS) {
+  //           String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
+  //           Set<String> progressScheduledOn = progressByScheduledOn.get(entryScheduledOnString);
+  //           if (progressScheduledOn == null) {
+  //             progressByScheduledOn.put(entryScheduledOnString, progressScheduledOn=new HashSet<>());
+  //           }
+  //           progressScheduledOn.add(CalendarUtils.formatDate(entry.on));
+  //         }
+  //       }
+  //       // Convert each element to unmodifiable
+  //       for (Map.Entry<String, Set<String>> entry : progressByScheduledOn.entrySet()) {
+  //         entry.setValue(AoCollections.optimalUnmodifiableSet(entry.getValue()));
+  //       }
+  //       unmodifiableProgressByScheduledOn = Collections.unmodifiableMap(progressByScheduledOn);
+  //     }
+  //     return unmodifiableProgressByScheduledOn;
+  //   }
+  // }
 
   /**
    * Gets the entries grouped by "scheduledOn" value or empty list if there are none.
