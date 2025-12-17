@@ -32,7 +32,7 @@ def upstreamProjects = [
   '../../oss/hodgepodge', // <groupId>com.aoapps</groupId><artifactId>ao-hodgepodge</artifactId>
   '../../oss/lang', // <groupId>com.aoapps</groupId><artifactId>ao-lang</artifactId>
   // No Jenkins: <groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId>
-  '../../semanticcms-1.x/core/model', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-model</artifactId>
+  '../../semanticcms-2.x/core/model', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-model</artifactId>
 ]
 
 /******************************************************************************************
