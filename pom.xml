@@ -254,9 +254,6 @@ along with pragmatickm-task-model.  If not, see <https://www.gnu.org/licenses/>.
       <dependency>
         <groupId>com.aoapps</groupId><artifactId>ao-web-resources-registry</artifactId><version>0.7.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
       </dependency>
-      <dependency>
-        <groupId>joda-time</groupId><artifactId>joda-time</artifactId><version>2.14.0</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
