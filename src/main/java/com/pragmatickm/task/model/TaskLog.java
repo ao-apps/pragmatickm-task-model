@@ -464,7 +464,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   /**
    * Iterates through a snapshot of the entries.
    *
-   * @see  #getEntries()
+   * @see  TaskLog#getEntries()
    */
   @Override
   public Iterator<Entry> iterator() {
