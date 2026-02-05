@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2015, 2016, 2021, 2022  AO Industries, Inc.
+ * Copyright (C) 2015, 2016, 2021, 2022, 2026  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -34,21 +34,21 @@ public class TaskAssignment {
   /**
    * Some commonly used constant assignments.
    */
-  public static final TaskAssignment UNASSIGNED = new TaskAssignment(User.Unassigned, DayDuration.ZERO_DAYS);
+  public static final TaskAssignment UNASSIGNED = new TaskAssignment(Task.UNASSIGNED, DayDuration.ZERO_DAYS);
 
-  public static TaskAssignment getInstance(User who, DayDuration after) {
+  public static TaskAssignment getInstance(String who, DayDuration after) {
     // Shortcuts for constants
-    if (who == User.Unassigned && after == DayDuration.ZERO_DAYS) {
+    if (Task.UNASSIGNED.equals(who) && after == DayDuration.ZERO_DAYS) {
       return UNASSIGNED;
     }
     // Create new object
     return new TaskAssignment(who, after);
   }
 
-  private final User who;
+  private final String who;
   private final DayDuration after;
 
-  private TaskAssignment(User who, DayDuration after) {
+  private TaskAssignment(String who, DayDuration after) {
     this.who = who;
     if (after.getCount() < 0) {
       throw new IllegalArgumentException("after.count < 0: " + after.getCount());
@@ -59,16 +59,16 @@ public class TaskAssignment {
   @Override
   public String toString() {
     if (after.getCount() == 0) {
-      return who.toString();
+      return who;
     }
     StringBuilder sb = new StringBuilder();
-    sb.append(who.toString()).append(" (after ");
+    sb.append(who).append(" (after ");
     after.toString(sb);
     sb.append(')');
     return sb.toString();
   }
 
-  public User getWho() {
+  public String getWho() {
     return who;
   }
 

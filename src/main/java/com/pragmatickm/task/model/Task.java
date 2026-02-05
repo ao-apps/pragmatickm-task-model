@@ -38,9 +38,22 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class Task extends Element {
+
+  /**
+   * The user value representing an unassigned task.
+   */
+  public static final String UNASSIGNED = "Unassigned";
+
+  /**
+   * Anybody except unassigned is a person and may have tasks assigned.
+   */
+  public static boolean isPerson(String user) {
+    return !UNASSIGNED.equals(user);
+  }
 
   private volatile String label;
   private volatile UnmodifiableCalendar on;
@@ -187,17 +200,17 @@ public class Task extends Element {
    *
    * @return  The assignment or {@code null} if not assigned to the given person.
    */
-  public TaskAssignment getAssignedTo(User who) {
+  public TaskAssignment getAssignedTo(String who) {
     synchronized (lock) {
       if (assignedTo == null) {
-        if (who == User.Unassigned) {
+        if (UNASSIGNED.equals(who)) {
           return TaskAssignment.UNASSIGNED;
         }
       } else {
         // Sequential scan to see that person not already in list.  Sequential
         // expected to be fastest since tasks should rarely be assigned to many people
         for (TaskAssignment assignment : assignedTo) {
-          if (assignment.getWho() == who) {
+          if (Objects.equals(assignment.getWho(), who)) {
             return assignment;
           }
         }
@@ -206,10 +219,10 @@ public class Task extends Element {
     return null;
   }
 
-  public void addAssignedTo(User who, DayDuration after) {
+  public void addAssignedTo(String who, DayDuration after) {
     synchronized (lock) {
       checkNotFrozen();
-      if (!who.isPerson()) {
+      if (!Task.isPerson(who)) {
         throw new IllegalArgumentException("Not a person: " + who);
       }
       if (assignedTo == null) {
