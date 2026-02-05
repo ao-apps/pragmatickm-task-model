@@ -1,6 +1,6 @@
 /*
  * pragmatickm-task-model - Tasks nested within SemanticCMS pages and elements.
- * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025  AO Industries, Inc.
+ * Copyright (C) 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025, 2026  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -188,7 +188,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     private final SortedSet<UnmodifiableCalendar> scheduledOns;
     private final UnmodifiableCalendar on;
     private final Status status;
-    private final List<User> unmodifiableWho;
+    private final List<String> unmodifiableWho;
     private final Map<String, String> unmodifiableCustom;
     private final String comments;
 
@@ -196,7 +196,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
         Set<? extends Calendar> scheduledOns,
         Calendar on,
         Status status,
-        List<User> who,
+        List<String> who,
         Map<String, String> custom,
         String comments
     ) {
@@ -213,8 +213,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
         this.unmodifiableWho = Collections.emptyList();
       } else {
         this.unmodifiableWho = AoCollections.unmodifiableCopyList(who);
-        for (User user : this.unmodifiableWho) {
-          if (!user.isPerson()) {
+        for (String user : this.unmodifiableWho) {
+          if (!Task.isPerson(user)) {
             throw new IllegalArgumentException("Not a person: " + user);
           }
         }
@@ -251,7 +251,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     }
 
     @SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
-    public List<User> getWho() {
+    public List<String> getWho() {
       return unmodifiableWho;
     }
 
@@ -371,7 +371,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                   Set<GregorianCalendar> scheduledOns = null;
                   GregorianCalendar on = null;
                   Status status = null;
-                  List<User> who = null;
+                  List<String> who = null;
                   Map<String, String> custom = null;
                   String comments = null;
                   for (Node grandChild = child.getFirstChild();
@@ -413,7 +413,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                         if (who == null) {
                           who = new ArrayList<>();
                         }
-                        who.add(User.valueOf(content));
+                        who.add(content);
                       } else if (CUSTOM_NODE.equals(nodeName)) {
                         if (custom == null) {
                           custom = new LinkedHashMap<>();
