@@ -29,14 +29,13 @@ import com.aoapps.collections.AoCollections;
 import com.aoapps.hodgepodge.schedule.DayDuration;
 import com.aoapps.hodgepodge.schedule.Recurring;
 import com.aoapps.lang.NullArgumentException;
-import com.aoapps.lang.util.UnmodifiableCalendar;
 import com.semanticcms.core.model.Element;
 import com.semanticcms.core.model.ElementRef;
 import com.semanticcms.core.model.ResourceRef;
 import com.semanticcms.core.resources.ResourceStore;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -60,7 +59,7 @@ public class Task extends Element {
   private final ResourceStore resourceStore;
 
   private volatile String label;
-  private volatile UnmodifiableCalendar on;
+  private volatile LocalDate on;
   private volatile Recurring recurring;
   private volatile boolean relative;
   private List<TaskAssignment> assignedTo;
@@ -150,15 +149,14 @@ public class Task extends Element {
     return "task";
   }
 
-  @SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
-  public UnmodifiableCalendar getOn() {
+  public LocalDate getOn() {
     return on;
   }
 
-  public void setOn(Calendar on) {
+  public void setOn(LocalDate on) {
     synchronized (lock) {
       checkNotFrozen();
-      this.on = UnmodifiableCalendar.wrap(on);
+      this.on = on;
       checkPriorityAndOn();
     }
   }
@@ -314,22 +312,20 @@ public class Task extends Element {
   }
 
   /**
-   * Gets the effective priority, which is the priority with the time best matching the given "now" time.
+   * Gets the effective priority, which is the priority with the time best matching the given "today" date.
    *
-   * @param  from  the date the priority is being determined from.
-   * @param  now   the current system timestamp
+   * @param  from   the date the priority is being determined from.
+   * @param  today  the current system date
    */
-  public Priority getPriority(Calendar from, long now) {
-    long mostFutureMatch = Long.MIN_VALUE;
+  public Priority getPriority(LocalDate from, LocalDate today) {
+    LocalDate mostFutureMatch = LocalDate.MIN;
     Priority mostFuturePriority = null;
     synchronized (lock) {
       for (TaskPriority taskPriority : fastGetPriorities()) {
         // priority "after"
-        Calendar effectiveDate = UnmodifiableCalendar.unwrapClone(from);
-        taskPriority.getAfter().offset(effectiveDate);
-        long effectiveTime = effectiveDate.getTimeInMillis();
-        if (now >= effectiveTime && effectiveTime > mostFutureMatch) {
-          mostFutureMatch = effectiveTime;
+        LocalDate effectiveDate = taskPriority.getAfter().plus(from);
+        if (today.compareTo(effectiveDate) >= 0 && effectiveDate.compareTo(mostFutureMatch) > 0) {
+          mostFutureMatch = effectiveDate;
           mostFuturePriority = taskPriority.getPriority();
         }
       }

@@ -26,8 +26,6 @@ package com.pragmatickm.task.model;
 import com.aoapps.collections.AoCollections;
 import com.aoapps.hodgepodge.schedule.Recurring;
 import com.aoapps.lang.NullArgumentException;
-import com.aoapps.lang.util.CalendarUtils;
-import com.aoapps.lang.util.UnmodifiableCalendar;
 import com.semanticcms.core.model.ResourceRef;
 import com.semanticcms.core.resources.Resource;
 import com.semanticcms.core.resources.ResourceConnection;
@@ -36,19 +34,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.xml.XMLConstants;
@@ -169,32 +163,17 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     }
   }
 
-  private static final Comparator<Calendar> calendarInMilliOrderComparator = (cal1, cal2) -> Long.compare(
-      cal1.getTimeInMillis(),
-      cal2.getTimeInMillis()
-  );
-
-  private static SortedSet<UnmodifiableCalendar> makeUnmodifiable(Set<? extends Calendar> calendars) {
-    SortedSet<UnmodifiableCalendar> result = new TreeSet<>(calendarInMilliOrderComparator);
-    for (Calendar cal : calendars) {
-      if (!result.add(UnmodifiableCalendar.wrap(cal))) {
-        throw new AssertionError();
-      }
-    }
-    return AoCollections.optimalUnmodifiableSortedSet(result);
-  }
-
   public static class Entry {
-    private final SortedSet<UnmodifiableCalendar> scheduledOns;
-    private final UnmodifiableCalendar on;
+    private final SortedSet<LocalDate> scheduledOns;
+    private final LocalDate on;
     private final Status status;
     private final List<String> unmodifiableWho;
     private final Map<String, String> unmodifiableCustom;
     private final String comments;
 
     public Entry(
-        Set<? extends Calendar> scheduledOns,
-        Calendar on,
+        SortedSet<LocalDate> scheduledOns,
+        LocalDate on,
         Status status,
         List<String> who,
         Map<String, String> custom,
@@ -203,11 +182,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
       if (scheduledOns == null) {
         this.scheduledOns = AoCollections.emptySortedSet();
       } else {
-        this.scheduledOns = makeUnmodifiable(scheduledOns);
+        this.scheduledOns = AoCollections.optimalUnmodifiableSortedSet(scheduledOns);
       }
-      this.on = UnmodifiableCalendar.wrap(
-          NullArgumentException.checkNotNull(on, "on")
-      );
+      this.on = NullArgumentException.checkNotNull(on, "on");
       this.status = status;
       if (who == null) {
         this.unmodifiableWho = Collections.emptyList();
@@ -232,8 +209,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
      * empty set if not applies to any schedules.  These are ordered by
      * time in milliseconds ascending.
      */
-    @SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
-    public SortedSet<UnmodifiableCalendar> getScheduledOns() {
+    public SortedSet<LocalDate> getScheduledOns() {
       return scheduledOns;
     }
 
@@ -241,8 +217,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
      * The date this action was actually taken.  This may not necessarily
      * be on the scheduled date, but still counts status toward the scheduled date.
      */
-    @SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
-    public UnmodifiableCalendar getOn() {
+    public LocalDate getOn() {
       return on;
     }
 
@@ -289,11 +264,11 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   private final EntriesLock entriesLock = new EntriesLock();
   private long entriesLastModified;
   private List<Entry> unmodifiableEntries;
-  private Map<String, List<Entry>> unmodifiableEntriesByScheduledOn;
-  // private Map<String, Set<String>> unmodifiableProgressByScheduledOn;
-  private UnmodifiableCalendar firstIncompleteFrom;
+  private Map<LocalDate, List<Entry>> unmodifiableEntriesByScheduledOn;
+  // private Map<LocalDate, Set<String>> unmodifiableProgressByScheduledOn;
+  private LocalDate firstIncompleteFrom;
   private Recurring firstIncompleteRecurring;
-  private UnmodifiableCalendar firstIncompleteResult;
+  private LocalDate firstIncompleteResult;
 
   private TaskLog(Resource xmlFile) {
     this.xmlFile = xmlFile;
@@ -367,9 +342,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                   if (!ENTRY_NODE.equals(child.getNodeName())) {
                     throw new ParseException("Unexpected element \"" + child.getNodeName() + "\" in " + xmlFile, 0);
                   }
-                  GregorianCalendar lastScheduledOn = null;
-                  Set<GregorianCalendar> scheduledOns = null;
-                  GregorianCalendar on = null;
+                  LocalDate lastScheduledOn = null;
+                  SortedSet<LocalDate> scheduledOns = null;
+                  LocalDate on = null;
                   Status status = null;
                   List<String> who = null;
                   Map<String, String> custom = null;
@@ -385,14 +360,14 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                       // Java 1.8: switch (nodeName) {
                       if (SCHEDULED_ON_NODE.equals(nodeName)) {
                         if (scheduledOns == null) {
-                          scheduledOns = new LinkedHashSet<>();
+                          scheduledOns = new TreeSet<>();
                         }
-                        GregorianCalendar scheduledOn = CalendarUtils.parseDate(content);
+                        LocalDate scheduledOn = content == null ? null : LocalDate.parse(content);
                         if (lastScheduledOn != null) {
                           // Must be in order
-                          if (scheduledOn.getTimeInMillis() <= lastScheduledOn.getTimeInMillis()) {
-                            throw new ParseException("Out of order " + SCHEDULED_ON_NODE + ": " + CalendarUtils.formatDate(scheduledOn)
-                                + " <= " + CalendarUtils.formatDate(lastScheduledOn) + " in " + xmlFile, 0);
+                          if (scheduledOn.compareTo(lastScheduledOn) <= 0) {
+                            throw new ParseException("Out of order " + SCHEDULED_ON_NODE + ": " + scheduledOn
+                                + " <= " + lastScheduledOn + " in " + xmlFile, 0);
                           }
                         }
                         lastScheduledOn = scheduledOn;
@@ -403,7 +378,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                         if (on != null) {
                           throw new ParseException("Multiple " + ON_NODE + " tag in " + xmlFile, 0);
                         }
-                        on = CalendarUtils.parseDate(content);
+                        on = content == null ? null : LocalDate.parse(content);
                       } else if (STATUS_NODE.equals(nodeName)) {
                         if (status != null) {
                           throw new ParseException("Multiple " + STATUS_NODE + " tag in " + xmlFile, 0);
@@ -446,9 +421,9 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
                       comments
                   );
                   // The entries must be in order by "on" value
-                  if (lastEntry != null && newEntry.on.before(lastEntry.on)) {
-                    throw new ParseException("Entry not in order by \"on\": " + CalendarUtils.formatDate(newEntry.on)
-                        + " < " + CalendarUtils.formatDate(lastEntry.on) + " in " + xmlFile, 0);
+                  if (lastEntry != null && newEntry.on.isBefore(lastEntry.on)) {
+                    throw new ParseException("Entry not in order by \"on\": " + newEntry.on
+                        + " < " + lastEntry.on + " in " + xmlFile, 0);
                   }
                   lastEntry = newEntry;
                   newEntries.add(newEntry);
@@ -487,40 +462,36 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
     }
   }
 
-  private static final Collection<UnmodifiableCalendar> COLLECTION_WITH_ONE_NULL = Collections.singletonList(null);
+  private static final Collection<LocalDate> COLLECTION_WITH_ONE_NULL = Collections.singletonList(null);
 
   /**
    * Gets a snapshot of the entries grouped by "scheduledOn" value.
    * Has a <code>null</code> key for any entries without a "scheduledOn" date.
-   * The cache key is the date in YYYY-MM-DD format.
-   *
-   * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
    */
   @SuppressWarnings("ReturnOfCollectionOrArrayField") // Returning unmodifiable
-  public Map<String, List<Entry>> getEntriesByScheduledOnDate() throws IOException {
+  public Map<LocalDate, List<Entry>> getEntriesByScheduledOnDate() throws IOException {
     synchronized (entriesLock) {
       // Call getEntries always because it will refresh data when file changed
       List<Entry> allEntries = getEntries();
       if (unmodifiableEntriesByScheduledOn == null) {
-        Map<String, List<Entry>> entriesByScheduledOn = new LinkedHashMap<>();
+        Map<LocalDate, List<Entry>> entriesByScheduledOn = new LinkedHashMap<>();
         for (Entry entry : allEntries) {
-          Collection<UnmodifiableCalendar> scheduledOns = entry.getScheduledOns();
+          Collection<LocalDate> scheduledOns = entry.getScheduledOns();
           // Must always handle the "null" key for when there are not scheduled ons
           if (scheduledOns.isEmpty()) {
             scheduledOns = COLLECTION_WITH_ONE_NULL;
           }
-          for (Calendar scheduledOn : scheduledOns) {
-            String entryScheduledOnString = CalendarUtils.formatDate(scheduledOn);
-            List<Entry> entriesScheduledOn = entriesByScheduledOn.get(entryScheduledOnString);
+          for (LocalDate scheduledOn : scheduledOns) {
+            List<Entry> entriesScheduledOn = entriesByScheduledOn.get(scheduledOn);
             if (entriesScheduledOn == null) {
               entriesScheduledOn = new ArrayList<>();
-              entriesByScheduledOn.put(entryScheduledOnString, entriesScheduledOn);
+              entriesByScheduledOn.put(scheduledOn, entriesScheduledOn);
             }
             entriesScheduledOn.add(entry);
           }
         }
         // Convert each element to unmodifiable
-        for (Map.Entry<String, List<Entry>> entry : entriesByScheduledOn.entrySet()) {
+        for (Map.Entry<LocalDate, List<Entry>> entry : entriesByScheduledOn.entrySet()) {
           entry.setValue(AoCollections.optimalUnmodifiableList(entry.getValue()));
         }
         unmodifiableEntriesByScheduledOn = Collections.unmodifiableMap(entriesByScheduledOn);
@@ -532,28 +503,25 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   // /**
   //  * Gets a snapshot of the "progress" dates grouped by "scheduledOn" value.
   //  * Has a <code>null</code> key for any entries without a "scheduledOn" date.
-  //  * The cache key is the date in YYYY-MM-DD format.
-  //  *
-  //  * @see  CalendarUtils#formatDate(java.util.Calendar)  for cache key formatting
   //  */
-  // public Map<String, Set<String>> getProgressByScheduledOnDate() throws IOException {
+  // public Map<LocalDate, Set<String>> getProgressByScheduledOnDate() throws IOException {
   //   synchronized (entriesLock) {
   //     // Call getEntries always because it will refresh data when file changed
   //     List<Entry> allEntries = getEntries();
   //     if (unmodifiableProgressByScheduledOn == null) {
-  //       Map<String, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
+  //       Map<LocalDate, Set<String>> progressByScheduledOn = new LinkedHashMap<>();
   //       for (Entry entry : allEntries) {
   //         if (entry.getStatus() == Status.PROGRESS) {
-  //           String entryScheduledOnString = CalendarUtils.formatDate(entry.getScheduledOn());
-  //           Set<String> progressScheduledOn = progressByScheduledOn.get(entryScheduledOnString);
+  //           LocalDate entryScheduledOn = entry.getScheduledOn();
+  //           Set<String> progressScheduledOn = progressByScheduledOn.get(entryScheduledOn);
   //           if (progressScheduledOn == null) {
-  //             progressByScheduledOn.put(entryScheduledOnString, progressScheduledOn=new HashSet<>());
+  //             progressByScheduledOn.put(entryScheduledOn, progressScheduledOn=new HashSet<>());
   //           }
-  //           progressScheduledOn.add(CalendarUtils.formatDate(entry.on));
+  //           progressScheduledOn.add(entry.on.toString());
   //         }
   //       }
   //       // Convert each element to unmodifiable
-  //       for (Map.Entry<String, Set<String>> entry : progressByScheduledOn.entrySet()) {
+  //       for (Map.Entry<LocalDate, Set<String>> entry : progressByScheduledOn.entrySet()) {
   //         entry.setValue(AoCollections.optimalUnmodifiableSet(entry.getValue()));
   //       }
   //       unmodifiableProgressByScheduledOn = Collections.unmodifiableMap(progressByScheduledOn);
@@ -566,9 +534,8 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
    * Gets the entries grouped by "scheduledOn" value or empty list if there are none.
    * Supports <code>null</code> for all entries without a "scheduledOn" date.
    */
-  public List<Entry> getEntries(Calendar scheduledOn) throws IOException {
-    String scheduledOnKey = CalendarUtils.formatDate(scheduledOn);
-    List<Entry> entriesScheduledOn = getEntriesByScheduledOnDate().get(scheduledOnKey);
+  public List<Entry> getEntries(LocalDate scheduledOn) throws IOException {
+    List<Entry> entriesScheduledOn = getEntriesByScheduledOnDate().get(scheduledOn);
     if (entriesScheduledOn == null) {
       return Collections.emptyList();
     }
@@ -614,7 +581,7 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   /**
    * Gets the most recent entry from the task log on the given date or <code>null</code> if none.
    */
-  public Entry getMostRecentEntry(Calendar scheduledOn) throws IOException {
+  public Entry getMostRecentEntry(LocalDate scheduledOn) throws IOException {
     List<Entry> entries = getEntries(scheduledOn);
     int size = entries.size();
     return size == 0 ? null : entries.get(size - 1);
@@ -623,32 +590,31 @@ public class TaskLog implements Iterable<TaskLog.Entry> {
   /**
    * Gets the first incomplete scheduled on date.
    */
-  @SuppressWarnings("ReturnOfDateField") // UnmodifiableCalendar
-  public UnmodifiableCalendar getFirstIncompleteScheduledOn(
-      Calendar from,
+  public LocalDate getFirstIncompleteScheduledOn(
+      LocalDate from,
       Recurring recurring
   ) throws IOException {
     synchronized (entriesLock) {
       // Call getEntriesByScheduledOnDate always because it will refresh data when file changed
-      Map<String, List<Entry>> entriesByScheduledOnDate = getEntriesByScheduledOnDate();
+      Map<LocalDate, List<Entry>> entriesByScheduledOnDate = getEntriesByScheduledOnDate();
       if (
           firstIncompleteResult == null
-              || firstIncompleteFrom.getTimeInMillis() != from.getTimeInMillis()
+              || !firstIncompleteFrom.equals(from)
               || firstIncompleteRecurring == null
               || !firstIncompleteRecurring.equals(recurring)
       ) {
-        Iterator<Calendar> scheduledOnIter = recurring.getScheduleIterator(from);
+        Iterator<LocalDate> scheduledOnIter = recurring.getScheduleIterator(from);
         while (true) {
-          String date = CalendarUtils.formatDate(scheduledOnIter.next());
+          LocalDate date = scheduledOnIter.next();
           List<Entry> dateEntries = entriesByScheduledOnDate.get(date);
           if (
               dateEntries == null
                   || !dateEntries.get(dateEntries.size() - 1).getStatus().isCompletedSchedule()
           ) {
             // Store in cache
-            firstIncompleteFrom = UnmodifiableCalendar.wrap(from);
+            firstIncompleteFrom = from;
             firstIncompleteRecurring = recurring;
-            firstIncompleteResult = UnmodifiableCalendar.wrap(CalendarUtils.parseDate(date));
+            firstIncompleteResult = date;
             break;
           }
         }
