@@ -60,15 +60,15 @@ import org.xml.sax.SAXException;
  */
 public class TaskLog implements Iterable<TaskLog.Entry> {
 
-  private static final String ROOT_NODE             = "tasklog";
-  private static final String ENTRY_NODE            = "entry";
-  private static final String SCHEDULED_ON_NODE     = "scheduledOn";
-  private static final String ON_NODE               = "on";
-  private static final String STATUS_NODE           = "status";
-  private static final String WHO_NODE              = "who";
-  private static final String CUSTOM_NODE           = "custom";
+  private static final String ROOT_NODE = "tasklog";
+  private static final String ENTRY_NODE = "entry";
+  private static final String SCHEDULED_ON_NODE = "scheduledOn";
+  private static final String ON_NODE = "on";
+  private static final String STATUS_NODE = "status";
+  private static final String WHO_NODE = "who";
+  private static final String CUSTOM_NODE = "custom";
   private static final String CUSTOM_NAME_ATTRIBUTE = "name";
-  private static final String COMMENTS_NODE         = "comments";
+  private static final String COMMENTS_NODE = "comments";
 
   public enum Status {
     /**

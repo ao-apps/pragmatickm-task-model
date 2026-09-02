@@ -63,11 +63,12 @@ public class Task extends Element {
   private volatile String cost;
   private List<TaskPriority> priorities;
   private Set<ElementRef> doBefores;
-  /* TODO: public static class CustomLog {
-    private final String name;
-    private final EnumSet<TaskLog.Status> required;
-    // indicate which status where task log entry must have a value
-  }*/
+  // TODO:
+  // public static class CustomLog {
+  //   private final String name;
+  //   private final EnumSet<TaskLog.Status> required;
+  //   // indicate which status where task log entry must have a value
+  // }*/
   private Set<String> customLogs;
   private volatile PageRef xmlFile;
 
