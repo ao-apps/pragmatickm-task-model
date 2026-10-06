@@ -386,6 +386,8 @@ public class Task extends Element {
         doBefores = new LinkedHashSet<>();
       }
       if (!doBefores.add(doBefore)) {
+        // TODO: Allow duplicate <task:doBefore>; no harm and will allow us to avoid some workarounds in ao-docs.
+        //       Search docs for "TODO: Allow duplicate <task:doBefore>" once implemented.
         throw new IllegalArgumentException("Duplicate doBefore: " + doBefore);
       }
       // TODO: Both directions for page links?
